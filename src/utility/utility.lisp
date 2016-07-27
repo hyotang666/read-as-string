@@ -2,6 +2,7 @@
   (:export
     #:doc
     #:prototype
+    #:propagatef
     ))
 (in-package :ras.utility)
 
@@ -14,4 +15,11 @@
   "C-style prototype declaration."
   `(DECLAIM(FTYPE(FUNCTION ,param-types ,return-type),name)))
 
+(defmacro propagatef(item &rest places)
+  "Set ITEM to all PLACES."
+  (let((var(gensym"VAR")))
+    `(LET((,var ,item))
+       (SETF ,@(mapcan(lambda(x)
+			`(,x ,var))
+		 places)))))
 

@@ -79,15 +79,6 @@
 	 (LAMBDA () ,@body))
        (COPY-PARSER ',(upcase cons) ',cons))))
 
-(eval-when(:load-toplevel :compile-toplevel :execute)
-  (defmacro propagatef(item &rest places)
-    "Set ITEM to all PLACES."
-    (let((var(gensym"VAR")))
-      `(LET((,var ,item))
-	 (SETF ,@(mapcan(lambda(x)
-			  `(,x ,var))
-		   places))))))
-
 (defun copy-parser(dest src)
   (propagatef(gethash src *parsers*)
     (gethash dest *parsers*)
