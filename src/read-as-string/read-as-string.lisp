@@ -26,18 +26,15 @@
 		       (eof-value nil)
 		       (recursive-p nil))
   #.(doc :read-as-string "doc/read-as-string.md")
-  (handler-case(let((parser(parser(list (peek-char(not recursive-p))))))
-		 (if parser
-		   (funcall parser)
-		   (default-parser)))
+  (handler-case(funcall(parser(list (peek-char(not recursive-p)))))
     (end-of-file(condition)(if eof-error-p
 			     (error condition)
 			     eof-value))))
 
 (defvar *parsers*(make-hash-table :test #'equal))
 
-(defun parser(cons)
-  (gethash cons *parsers*))
+(defun parser(cons &optional(default #'default-parser))
+  (gethash cons *parsers* default))
 
 (defun default-parser()
   (read-string-till #'terminal-char-p))
@@ -146,12 +143,11 @@
 
 (defparser(#\#)
   (concatenate 'string "#"
-	       (let((parser(parser(cons (read-char) ; consume #\#.
-					(peek-char)))))
-		 (if parser
-		   (funcall parser)
-		   (concatenate 'string (string(read-char))
-				(read-as-string))))))
+	       (funcall(parser (cons (read-char) ; consume #\#.
+				     (peek-char))
+			       (lambda()
+				 (concatenate 'string (string(read-char))
+					      (read-as-string)))))))
 
 (defparser(#\# . #\')
   (concatenate 'string (string(read-char))
