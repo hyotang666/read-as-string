@@ -1,23 +1,17 @@
 (in-package :cl-user)
-(defpackage :ras.bsearch(:use :cl)
+(defpackage :ras.bsearch(:use :cl :ras.utility)
   (:export #:bsearch))
 (in-package :ras.bsearch)
 
-(eval-when(:compile-toplevel)
-  (defun doc(system pathname)
-    (uiop:read-file-string
-      (uiop:subpathname(asdf:system-source-directory(asdf:find-system system))
-	pathname))))
-
-(declaim(ftype(function(T simple-vector
-			  &key
-			  (:key function)
-			  (:test function)
-			  (:start (mod #.array-total-size-limit))
-			  (:end (mod #.array-total-size-limit))
-			  (:compare function)
-			  (:default T)))
-	  bsearch))
+(prototype bsearch (T simple-vector
+		      &key
+		      (:key function)
+		      (:test function)
+		      (:start (mod #.array-total-size-limit))
+		      (:end (mod #.array-total-size-limit))
+		      (:compare function)
+		      (:default T))
+	   (values (or string T)))
 
 #++(defun bsearch(item vector &key(key #'identity)(test #'eql)(start 0)(end (length vector))(compare #'<)(default nil))
   #.(doc :ras.bsearch "doc/bsearch.md")

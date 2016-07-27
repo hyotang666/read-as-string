@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage :read-as-string(:use :cl :ras.bsearch)
+(defpackage :read-as-string(:use :cl :ras.utility :ras.bsearch)
   (:export
     ; main api.
     #:read-as-string
@@ -11,11 +11,6 @@
 (in-package :read-as-string)
 
 (pushnew :read-as-string *features*)
-
-(eval-when(:compile-toplevel :load-toplevel :execute)
-  (defmacro prototype(name param-types return-type)
-    "C-style prototype declaration."
-    `(DECLAIM(FTYPE(FUNCTION ,param-types ,return-type),name))))
 
 (eval-when(:compile-toplevel :load-toplevel :execute)
   (defvar *spaces* (sort #(#\space #\newline #\tab #\page #\return #\linefeed)
@@ -30,6 +25,7 @@
 		       (eof-error-p T)
 		       (eof-value nil)
 		       (recursive-p nil))
+  #.(doc :read-as-string "doc/read-as-string.md")
   (handler-case(let((parser(parser(list (peek-char(not recursive-p))))))
 		 (if parser
 		   (funcall parser)
@@ -47,6 +43,7 @@
   (read-string-till #'terminal-char-p))
 
 (defun terminal-char-p(char)
+  #.(doc :read-as-string "doc/terminal-char-p.md")
   (bsearch char *terminals* :test #'char= :compare #'char<))
 
 (prototype read-string-till(function &optional stream boolean T boolean)
@@ -55,6 +52,7 @@
 				  (eof-error-p t)
 				  (eof-value nil)
 				  (consume nil))
+  #.(doc :read-as-string "doc/read-string-till.md")
   (loop :for (c . condition) = (multiple-value-list(ignore-errors(read-char)))
 	;; C is character or nil.
 	:while(or (and c (not(funcall pred c)))
@@ -104,6 +102,7 @@
 	       (read-as-string *standard-input* T T T)))
 
 (defun space-char-p(char)
+  #.(doc :read-as-string "doc/space-char-p.md")
   (bsearch char *spaces* :test #'char= :compare #'char<))
 
 (progn . #.(map 'list(lambda(c)
