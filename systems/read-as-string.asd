@@ -15,5 +15,5 @@
   :description #.(description)
   :long-description #.(long-description)
   :depends-on (ras.utility ras.bsearch)
-  :pathname "src/read-as-string/"
+  :pathname "../src/read-as-string/"
   :components((:file "read-as-string")))
