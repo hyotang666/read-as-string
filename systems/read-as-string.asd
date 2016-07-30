@@ -14,6 +14,7 @@
 (defsystem :read-as-string
   :description #.(description)
   :long-description #.(long-description)
+  :in-order-to ((test-op (test-op :read-as-string.test)))
   :depends-on (ras.utility ras.bsearch)
   :pathname "../src/read-as-string/"
   :components((:file "read-as-string")))
