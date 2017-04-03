@@ -1,5 +1,8 @@
 (in-package :cl-user)
-(defpackage :read-as-string(:use :cl :ras.utility :ras.bsearch)
+(defpackage :read-as-string(:use :cl)
+  (:import-from :fields #:Propagatef)
+  (:import-from :ras.bsearch #:Bsearch)
+  (:import-from :type-ext #:Prototype)
   (:export
     ; main api.
     #:read-as-string
@@ -7,8 +10,12 @@
     #:read-string-till
     #:space-char-p
     #:terminal-char-p
+    #:commentp
 	   ))
 (in-package :read-as-string)
+
+;;;; develop utility
+(define-symbol-macro u (asdf:load-system :read-as-string))
 
 (pushnew :read-as-string *features*)
 
@@ -20,12 +27,11 @@
 (defvar *terminals* (sort(concatenate 'vector *spaces* *terminal-macro-chars*)
 		      #'char<))
 
-(prototype read-as-string(&optional stream boolean t boolean)(or string t))
+(Prototype read-as-string(&optional stream boolean t boolean)(or string t))
 (defun read-as-string(&optional(*standard-input* *standard-input*)
 		       (eof-error-p T)
 		       (eof-value nil)
 		       (recursive-p nil))
-  #.(doc :read-as-string "doc/read-as-string.md")
   (handler-case(funcall(parser(list (peek-char(not recursive-p)))))
     (end-of-file(condition)(if eof-error-p
 			     (error condition)
@@ -40,24 +46,28 @@
   (read-string-till #'terminal-char-p))
 
 (defun terminal-char-p(char)
-  #.(doc :read-as-string "doc/terminal-char-p.md")
-  (bsearch char *terminals* :test #'char= :compare #'char<))
+  (Bsearch char *terminals* :test #'char= :compare #'char<))
 
-(prototype read-string-till(function &optional stream boolean T boolean)
+(deftype function-designator()
+  '(or function
+       (and symbol (not (or boolean keyword)))))
+
+(Prototype read-string-till(function-designator
+			    &optional stream boolean T boolean)
 	   (values (or string t) boolean))
-(defun read-string-till (pred &optional (*standard-input* *standard-input*)
-				  (eof-error-p t)
-				  (eof-value nil)
-				  (consume nil))
-  #.(doc :read-as-string "doc/read-string-till.md")
-  (loop :for (c . condition) = (multiple-value-list(ignore-errors(read-char)))
+(defun read-string-till (pred &optional
+			      (*standard-input* *standard-input*)
+			      (eof-error-p t)
+			      (eof-value nil)
+			      (consume nil))
+  (loop :for (c condition) = (multiple-value-list(ignore-errors(read-char)))
 	;; C is character or nil.
-	:while(or (and c (not(funcall pred c)))
+	:while(or (and c (null(funcall pred c)))
 		  (and (null c) ; reach end of file.
 		       (if result
 			 (return(coerce result 'string))
 			 (if eof-error-p
-			   (error (car condition))
+			   (error condition)
 			   (return eof-value)))))
 	:collect c :into result ; always consume one char.
 	:when(char= c #\\) ; escape char-p
@@ -80,7 +90,7 @@
        (COPY-PARSER ',(upcase cons) ',cons))))
 
 (defun copy-parser(dest src)
-  (propagatef(gethash src *parsers*)
+  (Propagatef(gethash src *parsers*)
     (gethash dest *parsers*)
     (gethash (upcase dest) *parsers*)))
 
@@ -90,8 +100,7 @@
 	       (read-as-string *standard-input* T T T)))
 
 (defun space-char-p(char)
-  #.(doc :read-as-string "doc/space-char-p.md")
-  (bsearch char *spaces* :test #'char= :compare #'char<))
+  (Bsearch char *spaces* :test #'char= :compare #'char<))
 
 (progn . #.(map 'list(lambda(c)
 		       `(COPY-PARSER '(,c)'(#\space)))
@@ -102,13 +111,13 @@
 	:with close = 0
 	:for c = (peek-char)
 	:if(char= #\( c)
-	:do(incf open):and :collect (string (read-char)) :into result
+	:do(incf open):and :collect (read-char) :into result
 	:else :if(char= #\) c)
-	:do(incf close) :and :collect (string(read-char)) :into result
+	:do(incf close) :and :collect (read-char) :into result
 	:else :collect (read-as-string *standard-input* T T T)
 	:into result
 	:until(= open close)
-	:finally (return(apply #'concatenate 'string result))))
+	:finally (return(uiop:reduce/strcat result))))
 
 (defparser(#\`)
   (concatenate 'string(string(read-char))
@@ -136,23 +145,22 @@
   (concatenate 'string "#"
 	       (funcall(parser (cons (read-char) ; consume #\#.
 				     (peek-char))
-			       (lambda()
+			       (lambda() ; as default
 				 (concatenate 'string (string(read-char))
 					      (read-as-string)))))))
 
 (defparser(#\# . #\')
   (concatenate 'string (string(read-char))
-	       (default-parser)))
+	       (read-as-string *standard-input* T T T)))
 
 (progn . #.(mapcar(lambda(c)
 		    `(COPY-PARSER '(#\# . ,c) '(#\# . #\')))
 	     '(#\b #\o #\x #\* #\:)))
 
 (defparser(#\# . #\\)
-  (concatenate 'string(string(read-char))
-	       (string(read-char))
-	       (if(terminal-char-p(peek-char))
-		 ""
+  (uiop:strcat (read-char)
+	       (read-char)
+	       (unless(terminal-char-p(peek-char))
 		 (read-string-till #'terminal-char-p))))
 
 (defparser(#\# . #\()
@@ -164,7 +172,7 @@
 
 (progn . #.(mapcar(lambda(c)
 		    `(COPY-PARSER '(#\# . ,c) '(#\# . #\.)))
-	     '(#\s #\p #\a #\c)))
+	     '(#\s #\p #\a #\c #\:)))
 
 (defparser(#\# . #\<)
   (read-string-till (lambda(c)(char= #\> c))
@@ -190,17 +198,16 @@
 		  (write-char next))))))))
 
 (defparser(#\# . #\0)
-  (concatenate 'string
-	       (read-string-till(complement #'digit-char-p))
-	       (let((c(read-char)))
-		 (case c
-		   ((#\a #\A #\* #\= #\r #\R)
-		    (concatenate 'string (string c) (read-as-string)))
-		   ((#\#) ; labelling.
-		    (string c))
-		   (otherwise ; user defined dispatch macro character comes.
-		     (concatenate 'string(string c)
-				  (read-as-string)))))))
+  (multiple-value-call #'uiop:strcat
+    (read-string-till(complement #'digit-char-p))
+    (let((c(read-char)))
+      (case c
+	((#\a #\A #\* #\= #\r #\R)
+	 (values c (read-as-string)))
+	((#\#) ; labelling.
+	 c)
+	(otherwise ; user defined dispatch macro character comes.
+	  (values c (read-as-string)))))))
 
 (progn . #.(map 'list(lambda(c)
 		       `(COPY-PARSER '(#\# . ,c) '(#\# . #\0)))
@@ -208,7 +215,26 @@
 
 (defparser(#\# . #\+)
   (apply #'concatenate 'string (string(read-char))
-	 (loop :repeat 2
-	       :collect (read-as-string *standard-input* T T T))))
+	 (loop :with count = 0
+	       :for sexp = (read-as-string *standard-input* T T T)
+	       :collect sexp :into result
+	       :unless (commentp sexp)
+	       :do (incf count)
+	       :when (= 2 count)
+	       :do (loop-finish)
+	       :finally (return result))))
+
+(defun commentp(string)
+  #+ecl(check-type string string)
+  (labels((LINE-COMMENTP(string)
+	    (with-input-from-string(s string)
+	      (char= #\; (peek-char t s))))
+	  (BLOCK-COMMENTP(string)
+	    (with-input-from-string(s string)
+	      (and (char= #\# (peek-char t s))
+		   (char= #\| (progn (read-char s) ; discard #\#
+				     (read-char s)))))))
+    (or (LINE-COMMENTP string)
+	(BLOCK-COMMENTP string))))
 
 (copy-parser '(#\# . #\-) '(#\# . #\+))

@@ -18,6 +18,11 @@ But does not construct any lisp object but string.
 => "(1 2 3 4)"
 , :test string=
 
+#?(with-input-from-string(s "#'(lambda())")
+    (read-as-string s))
+=> "#'(lambda())"
+, :test string=
+
 #|
 When file toplevel comment comes, read it as S-Expression.
 |#
@@ -47,6 +52,14 @@ Unknown macro character remains.
 #?(with-input-from-string(s "#@hogehoge")
     (read-as-string s))
 => "#@hogehoge"
+, :test string=
+
+#|
+Unreadable-object remains.
+|#
+#?(with-input-from-string(s "#<Unreadable>")
+    (read-as-string s))
+=> "#<Unreadable>"
 , :test string=
 
 #|

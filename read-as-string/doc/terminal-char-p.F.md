@@ -1,0 +1,113 @@
+# [Function] TERMINAL-CHAR-P
+
+## Syntax:
+
+(TERMINAL-CHAR-P char) => result
+
+## Arguments and Values:
+
+char :=
+
+result := 
+
+## Description:
+
+# [Function] TERMINAL-CHAR-P
+
+## Syntax:
+
+(TERMINAL-CHAR-P CHARACTER) => BOOLEAN
+
+## Description:
+
+When CHARACTER is ansi cl supported terminal macro character or terminal space character, return T.
+
+## Exceptional situations:
+
+When argument is not character an error is signaled.
+
+## Notes:
+
+TERMINAL-CHAR-P supports only ANSI CL standard terminal macro characters, not user defined macro characters.
+
+## Affected by:
+
+`**`
+`*READ-EVAL*`
+`*STANDARD-OUTPUT*`
+`*READ-BASE*`
+`++`
+`*FEATURES*`
+`*PRINT-MISER-WIDTH*`
+`LEAST-POSITIVE-LONG-FLOAT`
+`*TRACE-OUTPUT*`
+`*COMPILE-VERBOSE*`
+`MOST-POSITIVE-LONG-FLOAT`
+`*DEFAULT-PATHNAME-DEFAULTS*`
+`*PRINT-READABLY*`
+`*QUERY-IO*`
+`*PRINT-GENSYM*`
+`*MACROEXPAND-HOOK*`
+`*LOAD-PRINT*`
+`PI`
+`*STANDARD-INPUT*`
+`*PRINT-LEVEL*`
+`*TERMINAL-IO*`
+`*LOAD-TRUENAME*`
+`*COMPILE-PRINT*`
+`*PRINT-PRETTY*`
+`*LOAD-VERBOSE*`
+`*READTABLE*`
+`*PRINT-RADIX*`
+`MOST-NEGATIVE-LONG-FLOAT`
+`*RANDOM-STATE*`
+`*COMPILE-FILE-PATHNAME*`
+`*DEBUGGER-HOOK*`
+`*ERROR-OUTPUT*`
+`***`
+`*PRINT-LENGTH*`
+`LEAST-NEGATIVE-LONG-FLOAT`
+`*DEBUG-IO*`
+`*COMPILE-FILE-TRUENAME*`
+`LONG-FLOAT-NEGATIVE-EPSILON`
+`*GENSYM-COUNTER*`
+`*BREAK-ON-SIGNALS*`
+`*PACKAGE*`
+`*MODULES*`
+`*PRINT-CASE*`
+`*PRINT-RIGHT-MARGIN*`
+`*READ-SUPPRESS*`
+`*LOAD-PATHNAME*`
+`LEAST-NEGATIVE-NORMALIZED-LONG-FLOAT`
+`*PRINT-ESCAPE*`
+`*PRINT-BASE*`
+`LONG-FLOAT-EPSILON`
+`*PRINT-ARRAY*`
+`*READ-DEFAULT-FLOAT-FORMAT*`
+`*PRINT-PPRINT-DISPATCH*`
+`//`
+`*PRINT-CIRCLE*`
+`LEAST-POSITIVE-NORMALIZED-LONG-FLOAT`
+`/`
+`-`
+`+`
+`*`
+`///`
+`*PRINT-LINES*`
+`+++`
+
+## Example:
+
+## Side-Effects:
+
+## Notes:
+
+## Exceptional-Situations:
+
+## See-Also:
+
+COMMENTP
+READ-AS-STRING
+READ-STRING-TILL
+SPACE-CHAR-P
+TERMINAL-CHAR-P

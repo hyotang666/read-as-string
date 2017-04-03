@@ -9,7 +9,7 @@ Sometime we need to analyze S-Expression statically.
 In this context, 'static' means does not construct lisp object but string.
 But lisp does not have such feature.
 
-* Propose
+* Proposal
 READ-AS-STRING do it.
 
 ## Usage

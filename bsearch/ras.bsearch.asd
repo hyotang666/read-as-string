@@ -1,5 +1,4 @@
 ; vim: ft=lisp et
 (defsystem :ras.bsearch
-  :pathname "../src/bsearch/"
-  :depends-on (:ras.utility)
+  :depends-on (:type-ext)
   :components((:file "bsearch")))
