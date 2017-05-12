@@ -222,7 +222,7 @@
 => "foo"
 
 #+syntax
-(READ-STRING-TILL pred &optional (*standard-input* *standard-input*) (eof-error-p t) (eof-value nil) (consume nil)) ; => result
+(READ-STRING-TILL pred &optional (*standard-input* *standard-input*) (eof-error-p t) (eof-value nil) (consume nil)(include T)) ; => result
 
 ;;;; Arguments and Values:
 
@@ -275,6 +275,17 @@
 	 (read-char))
 => #\b
 ,:test char=
+
+; include := boolean, specify character which satisifies pred is included to result or not.
+; The default is T.
+#?(read-string-till (complement #'alpha-char-p))
+=> "foo"
+#?(read-string-till (complement #'alpha-char-p)*standard-input* t t t)
+=> "foo "
+#?(values (read-string-till (complement #'alpha-char-p)*standard-input* t t t nil)
+	  (read-char))
+:values ("foo" #\b)
+,:test equal
 
 ; result := string when success.
 ; signaling end-of-file when fail and eof-error-p is T (the default).

@@ -53,13 +53,14 @@
        (and symbol (not (or boolean keyword)))))
 
 (Prototype read-string-till(function-designator
-			    &optional stream boolean T boolean)
+			    &optional stream boolean T boolean boolean)
 	   (values (or string t) boolean))
 (defun read-string-till (pred &optional
 			      (*standard-input* *standard-input*)
 			      (eof-error-p t)
 			      (eof-value nil)
-			      (consume nil))
+			      (consume nil)
+			      (include t))
   (loop :for (c condition) = (multiple-value-list(ignore-errors(read-char)))
 	;; C is character or nil.
 	:while(or (and c (null(funcall pred c)))
@@ -73,7 +74,9 @@
 	:when(char= c #\\) ; escape char-p
 	:collect (read-char) :into result ; consume one more char.
 	:finally(return (if consume
-			  (concatenate 'string result (string c))
+			  (if include
+			    (concatenate 'string result (string c))
+			    (coerce result 'string))
 			  (progn(unread-char c)
 			    (coerce result 'string))))))
 
