@@ -1,6 +1,6 @@
 (defpackage :read-as-string.spec (:use :cl :jingoh :read-as-string))
 (in-package :read-as-string.spec)
-(setup :read-as-string.spec)
+(setup :read-as-string)
 
 (requirements-about READ-AS-STRING :test string=)
 
