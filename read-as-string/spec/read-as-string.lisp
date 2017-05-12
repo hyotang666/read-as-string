@@ -298,6 +298,18 @@
 ; consume input stream contents
 
 ;;;; Notes:
+; When character is escaped, such characters are always consumed.
+#?(with-input-from-string(s "\\123")
+    (read-string-till #'digit-char-p s))
+=> "\\1"
+
+; Do not confuse "\" and "\\", especially when it is string literal.
+#?(with-input-from-string(s "[foo \] bar]")
+    (read-string-till (lambda(c)(char= #\] c)) s t t t))
+=> "[foo ]"
+#?(with-input-from-string(s "[foo \\] bar]")
+    (read-string-till (lambda(c)(char= #\] c)) s t t t))
+=> "[foo \\] bar]"
 
 ;;;; Exceptional-Situations:
 
