@@ -212,12 +212,13 @@
     (read-as-string))
 => "#<FUNCTION >"
 
-(requirements-about READ-STRING-TILL :test string=)
+(requirements-about READ-STRING-TILL :test string=
+		    :around (with-input-from-string(*standard-input* "foo bar bazz")
+			      (call-body)))
 
 ;;;; Description:
 ; read characters from stream till pred is satisfied.
-#?(with-input-from-string(*standard-input* "foo bar bazz")
-    (read-string-till (lambda(c)(char= c #\space))))
+#?(read-string-till (lambda(c)(char= c #\space)))
 => "foo"
 
 #+syntax
@@ -226,12 +227,10 @@
 ;;;; Arguments and Values:
 
 ; pred := function designator, otherwise error
-#?(with-input-from-string(*standard-input* "foo bar bazz")
-    (read-string-till (complement #'alpha-char-p)))
+#?(read-string-till (complement #'alpha-char-p))
 => "foo"
 
-#?(with-input-from-string(*standard-input* "foo bar bazz")
-    (read-string-till "GRAPHIC-CHAR-P"))
+#?(read-string-till "GRAPHIC-CHAR-P")
 :signals error
 ,:ignore-signals warning
 
@@ -243,12 +242,10 @@
 ; eof-error-p := boolean
 ; specify signaling error when reach end of file.
 ; The default is T
-#?(with-input-from-string(s "foo bar bazz")
-    (read-string-till #'alpha-char-p s))
+#?(read-string-till #'alpha-char-p)
 => ""
 
-#?(with-input-from-string(s "foo bar bazz")
-    (read-string-till #'digit-char-p s))
+#?(read-string-till #'digit-char-p)
 => "foo bar bazz"
 
 #?(with-input-from-string(s "")
@@ -261,21 +258,21 @@
 ,:test eq
 
 ; eof-value := T, return value when reach end of file.
+; The default is NIL.
 #?(with-input-from-string(s "")
     (read-string-till #'digit-char-p s nil :return-value))
 => :return-value
 ,:test eq
 
-; consume := boolean, specify consuming character which satisfies pred.
-#?(with-input-from-string(s "foo bar bazz")
-    (read-string-till (complement #'alpha-char-p) s)
-    (read-char s))
+; consume := boolean, specify character which satisfies pred is consumed or not.
+; The default is NIL.
+#?(progn (read-string-till (complement #'alpha-char-p))
+	 (read-char))
 => #\space
 ,:test char=
 
-#?(with-input-from-string(s "foo bar bazz")
-    (read-string-till (complement #'alpha-char-p) s t t t)
-    (read-char s))
+#?(progn (read-string-till (complement #'alpha-char-p) *standard-input* t t t)
+	 (read-char))
 => #\b
 ,:test char=
 
