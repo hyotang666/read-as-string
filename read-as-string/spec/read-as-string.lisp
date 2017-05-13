@@ -207,10 +207,20 @@
     (read-as-string))
 => "#<unreadable object>"
 
+#?(with-input-from-string(*standard-input* "#Unknown Dispatcher") ; Unknown dispatch macro char
+    (read-as-string))
+=> "#Unknown"
+
 ; NOTE!
 #?(with-input-from-string(*standard-input* "#<FUNCTION > >") ; known bug
     (read-as-string))
 => "#<FUNCTION >"
+
+; NOTE!
+; Could not handle dispatch macro like #"...." which found in fxml.
+#?(with-input-from-string(*standard-input* "#\"\"") ; known bug
+    (read-as-string))
+:signals end-of-file
 
 (requirements-about READ-STRING-TILL :test string=
 		    :around (with-input-from-string(*standard-input* "foo bar bazz")
