@@ -1,15 +1,15 @@
 # READ-AS-STRING - Reader which returns S-Expression string.
 
-* Current lisp world
+## Current lisp world
 Unlike UNIX, Lisp has READ.
 Lisp programmer does not make effort to make S-Expression parser (UNIX has awk though).
 
-* Issues
+## Issues
 Sometime we need to analyze S-Expression statically.
 In this context, 'static' means does not construct lisp object but string.
 But lisp does not have such feature.
 
-* Proposal
+## Proposal
 READ-AS-STRING do it.
 
 ## Usage
@@ -18,15 +18,21 @@ READ-AS-STRING do it.
   (print(read-from-string sexp))
   (with-input-from-string(s sexp)
     (print (read-as-string s))))
-(CAR (LIST :A 45))
-"(CAR (liSt :a 45.))"
+(CAR (LIST :A 45))    ; <--- Output of CL:READ-FROM-STRING.
+"(CAR (liSt :a 45.))" ; <--- Output of READ-AS-STRING.
 ```
 Usually `(read-from-string (read-as-string stream))` is same with `(read stream)`.
 
 ## From developer
 
-* Product's goal - eliminate bugs.
-* License - MIT
-* Developped with - CLISP
-* Tested with - none
+### Product's goal
+Eliminate bugs.
+### License
+MIT
+### Developped with
+CLISP/2.49
+### Tested with
+SBCL/1.3.17
+CCL/1.11-r16635
+ECL/16.1.3
 
