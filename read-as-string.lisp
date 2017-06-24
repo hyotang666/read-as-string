@@ -1,21 +1,14 @@
 (in-package :cl-user)
-(defpackage :read-as-string(:use :cl)
+(defpackage :read-as-string(:use :cl :bsearch :core-reader)
   (:import-from :fields #:Propagatef)
-  (:import-from :ras.bsearch #:Bsearch)
   (:import-from :type-ext #:Prototype)
   (:export
     ; main api.
     #:read-as-string
     ; internal useful helpers.
-    #:read-string-till
-    #:space-char-p
-    #:terminal-char-p
     #:commentp
 	   ))
 (in-package :read-as-string)
-
-;;;; develop utility
-(define-symbol-macro u (asdf:load-system :read-as-string))
 
 (pushnew :read-as-string *features*)
 
@@ -43,42 +36,7 @@
   (gethash cons *parsers* default))
 
 (defun default-parser()
-  (read-string-till #'terminal-char-p))
-
-(defun terminal-char-p(char)
-  (Bsearch char *terminals* :test #'char= :compare #'char<))
-
-(deftype function-designator()
-  '(or function
-       (and symbol (not (or boolean keyword)))))
-
-(Prototype read-string-till(function-designator
-			    &optional stream boolean T boolean boolean)
-	   (values (or string t) boolean))
-(defun read-string-till (pred &optional
-			      (*standard-input* *standard-input*)
-			      (eof-error-p t)
-			      (eof-value nil)
-			      (consume nil)
-			      (include t))
-  (loop :for (c condition) = (multiple-value-list(ignore-errors(read-char)))
-	;; C is character or nil.
-	:while(or (and c (null(funcall pred c)))
-		  (and (null c) ; reach end of file.
-		       (if result
-			 (return(coerce result 'string))
-			 (if eof-error-p
-			   (error condition)
-			   (return eof-value)))))
-	:collect c :into result ; always consume one char.
-	:when(char= c #\\) ; escape char-p
-	:collect (read-char) :into result ; consume one more char.
-	:finally(return (if consume
-			  (if include
-			    (concatenate 'string result (string c))
-			    (coerce result 'string))
-			  (progn(unread-char c)
-			    (coerce result 'string))))))
+  (Read-string-till (Delimiter *terminals*)))
 
 (eval-when(:load-toplevel :compile-toplevel :execute)
   (defun upcase(cons)
@@ -99,11 +57,8 @@
 
 (defparser(#\space)
   (concatenate 'string
-	       (read-string-till(complement #'space-char-p))
+	       (Read-string-till(complement (Delimiter *spaces*)))
 	       (read-as-string *standard-input* T T T)))
-
-(defun space-char-p(char)
-  (Bsearch char *spaces* :test #'char= :compare #'char<))
 
 (progn . #.(map 'list(lambda(c)
 		       `(COPY-PARSER '(,c)'(#\space)))
@@ -120,7 +75,7 @@
 	:else :collect (read-as-string *standard-input* T T T)
 	:into result
 	:until(= open close)
-	:finally (return(uiop:reduce/strcat result))))
+	:finally (return(String-concat result))))
 
 (defparser(#\`)
   (concatenate 'string(string(read-char))
@@ -131,18 +86,14 @@
 	     '(#\' #\,)))
 
 (defparser(#\")
-  (concatenate 'string(string(read-char))
-	       (read-string-till (lambda(c)(char= #\" c))
-				 *standard-input* T T T)))
+  (Read-delimited-string (read-char)))
 
-(defparser(#\|)
-  (concatenate 'string(string(read-char))
-	       (read-string-till (lambda(c)(char= #\| c))
-				 *standard-input* T T T)))
+(progn . #.(mapcar (lambda(c)
+		     `(COPY-PARSER '(,c)'(#\")))
+		   '(#\|)))
 
 (defparser(#\;)
-  (read-string-till (lambda(c)(char= #\newline c))
-		    *standard-input* T T T))
+  (Read-string-till (Char-pred #\newline) *standard-input* T T T T))
 
 (defparser(#\#)
   (concatenate 'string "#"
@@ -150,36 +101,20 @@
 				     (peek-char))
 			       (lambda() ; as default
 				 (concatenate 'string (string(read-char))
-					      (read-as-string)))))))
+					      (read-as-string *standard-input* T T T)))))))
 
-(defparser(#\# . #\')
-  (concatenate 'string (string(read-char))
-	       (read-as-string *standard-input* T T T)))
-
-(progn . #.(mapcar(lambda(c)
-		    `(COPY-PARSER '(#\# . ,c) '(#\# . #\')))
-	     '(#\b #\o #\x #\* #\:)))
 
 (defparser(#\# . #\\)
   (uiop:strcat (read-char)
 	       (read-char)
-	       (unless(terminal-char-p(peek-char))
-		 (read-string-till #'terminal-char-p))))
+	       (unless(funcall(Delimiter *terminals*)(peek-char))
+		 (Read-string-till (Delimiter *terminals*)))))
 
 (defparser(#\# . #\()
   (read-as-string *standard-input* T T T))
 
-(defparser(#\# . #\.)
-  (concatenate 'string(string(read-char))
-	       (read-as-string *standard-input* T T T)))
-
-(progn . #.(mapcar(lambda(c)
-		    `(COPY-PARSER '(#\# . ,c) '(#\# . #\.)))
-	     '(#\s #\p #\a #\c #\:)))
-
 (defparser(#\# . #\<)
-  (read-string-till (lambda(c)(char= #\> c))
-		    *standard-input* T T T))
+  (Read-string-till (Char-pred #\>) *standard-input* T T T T))
 
 (defparser(#\# . #\|)
   (with-output-to-string(*standard-output*)
