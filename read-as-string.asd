@@ -7,7 +7,14 @@
   :long-description #.(read-file-string(subpathname *load-pathname*
                                                     "README.md"))
   :license "MIT"
-  :depends-on ("bsearch" "core-reader" "type-ext" :uiop :fields)
+  :depends-on
+  (
+   "bsearch"            ; bynary search.
+   "core-reader"        ; utilities for making stream reader.
+   "type-ext"           ; type extensions.
+   "uiop"               ; utilities.
+   "fields"             ; field utilities.
+   )
   :components((:file "read-as-string")))
 
 (defmethod component-depends-on ((o test-op) (c (eql (find-system "read-as-string"))))
