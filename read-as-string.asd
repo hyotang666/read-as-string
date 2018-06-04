@@ -9,6 +9,6 @@
   :license "MIT"
   :depends-on ("bsearch" "core-reader" "type-ext" :uiop :fields)
   :components((:file "read-as-string")))
-;; Perform method below is added by JINGOH.GENERATOR.
-(defmethod perform ((o test-op) (c (eql (find-system "read-as-string"))))
- (test-system :read-as-string.test))
+
+(defmethod component-depends-on ((o test-op) (c (eql (find-system "read-as-string"))))
+  (append (call-next-method)'((test-op "read-as-string.test"))))
