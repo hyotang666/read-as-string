@@ -1,5 +1,5 @@
 (in-package :cl-user)
-(defpackage :read-as-string(:use :cl :bsearch :core-reader)
+(defpackage :read-as-string(:use :cl :core-reader)
   (:import-from :fields #:Propagatef)
   (:import-from :type-ext #:Prototype)
   (:export
