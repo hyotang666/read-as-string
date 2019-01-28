@@ -13,12 +13,9 @@
 (pushnew :read-as-string *features*)
 
 (eval-when(:compile-toplevel :load-toplevel :execute)
-  (defvar *spaces* (sort #(#\space #\newline #\tab #\page #\return #\linefeed)
-			 #'char<)))
-(defvar *terminal-macro-chars* (sort #(#\" #\' #\( #\) #\, #\; #\`)
-				     #'char<))
-(defvar *terminals* (sort(concatenate 'vector *spaces* *terminal-macro-chars*)
-		      #'char<))
+  (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
+(defvar *terminal-macro-chars* '(#\" #\' #\( #\) #\, #\; #\`))
+(defvar *terminals* (append *spaces* *terminal-macro-chars*))
 
 (Prototype read-as-string(&optional stream boolean t boolean)(or string t))
 (defun read-as-string(&optional(*standard-input* *standard-input*)
