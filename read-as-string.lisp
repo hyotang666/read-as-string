@@ -1,7 +1,6 @@
 (in-package :cl-user)
 (defpackage :read-as-string(:use :cl :core-reader)
   (:import-from :fields #:Propagatef)
-  (:import-from :type-ext #:Prototype)
   (:export
     ; main api.
     #:read-as-string
@@ -17,7 +16,10 @@
 (defvar *terminal-macro-chars* '(#\" #\' #\( #\) #\, #\; #\`))
 (defvar *terminals* (append *spaces* *terminal-macro-chars*))
 
-(Prototype read-as-string(&optional stream boolean t boolean)(or string t))
+(declaim (ftype (function (&optional stream boolean t boolean)
+			  (or string t))
+		read-as-string))
+
 (defun read-as-string(&optional(*standard-input* *standard-input*)
 		       (eof-error-p T)
 		       (eof-value nil)

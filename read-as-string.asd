@@ -10,7 +10,6 @@
   :depends-on
   (
    "core-reader"        ; utilities for making stream reader.
-   "type-ext"           ; type extensions.
    "uiop"               ; utilities.
    "fields"             ; field utilities.
    )
