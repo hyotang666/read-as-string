@@ -2,7 +2,7 @@
 (in-package :asdf)
 
 (defsystem :read-as-string
-  :version "0.0.2"
+  :version "0.0.3"
   :author "Shinichi Sato"
   :description "Reading S-Expression string from stream."
   :long-description #.(read-file-string(subpathname *load-pathname*
@@ -39,25 +39,3 @@
     (let ((args (jingoh.args keys)))
       (declare (special args))
       (call-next-method))))
-(let ((system (find-system "jingoh.documentizer" nil)))
-  (when (and system (not (featurep :clisp)))
-    (load-system system)
-    (defmethod operate :around
-               ((o load-op) (c (eql (find-system "read-as-string"))) &key)
-      (let* ((seen nil)
-             (*default-pathname-defaults*
-              (merge-pathnames "spec/" (system-source-directory c)))
-             (*macroexpand-hook*
-              (let ((outer-hook *macroexpand-hook*))
-                (lambda (expander form env)
-                  (if (not (typep form '(cons (eql defpackage) *)))
-                      (funcall outer-hook expander form env)
-                      (if (find (cadr form) seen :test #'string=)
-                          (funcall outer-hook expander form env)
-                          (progn
-                           (push (cadr form) seen)
-                           `(progn
-                             ,form
-                             ,@(symbol-call :jingoh.documentizer :importer
-                                            form)))))))))
-        (call-next-method)))))
