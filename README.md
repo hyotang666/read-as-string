@@ -30,6 +30,6 @@ Eliminate bugs.
 ### License
 MIT
 ### Tested with
-SBCL/1.5.6
-CCL/1.11.5
+* SBCL/1.5.7
+* CCL/1.11.5
 
