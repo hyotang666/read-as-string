@@ -86,6 +86,10 @@
     (read-as-string))
 => "|foo|"
 
+#?(with-input-from-string(*standard-input* "|a')|") ; valid symbol.
+    (read-as-string))
+=> "|a')|"
+
 #?(with-input-from-string(*standard-input* "()") ; empty list
     (read-as-string))
 => "()"
