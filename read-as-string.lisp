@@ -53,6 +53,7 @@
   (:macro-char #\` '|`reader|)
   (:macro-char #\; '|;reader|)
   (:macro-char #\# '|#reader|)
+  (:syntax-from :common-lisp #\) #\))
   )
 
 (defvar *dispatch-macros* (make-hash-table))
