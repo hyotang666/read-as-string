@@ -2,7 +2,7 @@
 (in-package :asdf)
 
 (defsystem :read-as-string
-  :version "0.1.0"
+  :version "0.2.0"
   :author "Shinichi Sato"
   :description "Reading S-Expression string from stream."
   :long-description #.(read-file-string(subpathname *load-pathname*
@@ -10,6 +10,7 @@
   :license "MIT"
   :depends-on
   (
+   "named-readtables" ; Readtable manager.
    "core-reader"        ; utilities for making stream reader.
    "uiop"               ; utilities.
    "fields"             ; field utilities.
