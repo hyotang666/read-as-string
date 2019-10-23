@@ -30,6 +30,110 @@
 			     (error condition)
 			     eof-value))))
 
+;;; MACRO CHARS
+(defun |"reader|(stream character)
+  (prin1-to-string(funcall (load-time-value
+			     (get-macro-character #\"(copy-readtable nil))
+			     T)
+			   stream
+			   character)))
+
+(defun |'reader|(stream character)
+  (format nil "~C~A"
+	  character
+	  (read-as-string stream)))
+
+(defun |paren-reader|(stream character)
+  (declare(ignore character))
+  (format nil "(~{~A~}"
+	  (loop :for char = (peek-char nil stream)
+		:if (char= #\) char)
+		:collect (read-char stream)
+		:and :do (loop-finish)
+		:else :if (char= #\. char)
+		:collect (read-char stream)
+		:else :collect (read-as-string stream t t t))))
+
+(defun |`reader|(stream character)
+  (format nil "~C~A"
+	  character
+	  (read-as-string stream)))
+
+(defun |;reader|(stream character)
+  (format nil "~C~A"
+	  character
+	  (Read-string-till (Char-pred #\newline) stream T T T T)))
+
+(defun |#reader|(stream character)
+  (let*((digit
+	  (Read-string-till (complement #'digit-char-p)
+			    stream))
+	(char
+	  (peek-char nil stream))
+	(reader
+	  (get-dispatcher char)))
+    (if reader
+      (funcall reader
+	       stream
+	       (read-char stream)
+	       digit)
+      (format nil "~C~@[~A~]~A"
+	      character
+	      digit
+	      (read-as-string stream t t t)))))
+
+;;; DISPATCH MACRO CHARS
+(defun |##reader|(stream character number)
+  (declare(ignore stream))
+  (format nil "#~@[~A~]~C"
+	  number
+	  character))
+
+(defun |#paren-reader|(stream character number)
+  (format nil "#~@[~A~]~A"
+	  number
+	  (|paren-reader| stream character)))
+
+(defun |#=reader|(stream character number)
+  (format nil "#~@[~A~]~C~A"
+	  number
+	  character
+	  (read-as-string stream t t t)))
+
+(defun |#\|reader|(stream character number)
+  (format nil "#~@[~A~]~C~{~A~}"
+	  number
+	  character
+	  (uiop:while-collecting(acc)
+	    (loop :for char = (read-char stream)
+		  :do
+		  (case char
+		    (#\|
+		     (acc char)
+		     (when(char= #\# (peek-char nil stream))
+		       (acc (read-char stream))
+		       (loop-finish)))
+		    (#\#
+		     (case (peek-char nil stream)
+		       (#\| ; nested comment
+			(acc (|#\|reader| stream (read-char stream)
+					  nil)))
+		       ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
+			(let((digit
+			       (Read-string-till #'digit-char-p)))
+			  (acc (|#\|reader| stream
+					    (read-char stream)
+					    digit))))
+		       (otherwise (acc char))))
+		    (otherwise (acc char)))))))
+
+(defun |#+reader|(stream character number)
+  (format nil "#~@[~A~]~C~A~A"
+	  number
+	  character
+	  (read-as-string stream t t t)
+	  (read-as-string stream t t t)))
+
 (defvar *parsers*(make-hash-table :test #'equal))
 
 (defun parser(cons &optional(default #'default-parser))
