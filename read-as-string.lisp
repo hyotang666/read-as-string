@@ -10,6 +10,13 @@
 
 (pushnew :read-as-string *features*)
 
+;;;; CONDITIONS
+(define-condition no-dispatch-function(reader-error cell-error)
+  ()
+  (:report (lambda(condition stream)
+	     (format stream "No dispatch function defined for ~S"
+		     (cell-error-name condition)))))
+
 (eval-when(:compile-toplevel :load-toplevel :execute)
   ;; See http://www.lispworks.com/documentation/HyperSpec/Body/02_ad.htm#charsyntaxtypesinstdsyntax
   (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
@@ -91,6 +98,7 @@
 	  (Read-string-till (Char-pred #\newline) stream T T T T)))
 
 (defun |#reader|(stream character)
+  (declare(ignore character))
   (let*((digit
 	  (Read-string-till (complement #'digit-char-p)
 			    stream))
@@ -103,10 +111,7 @@
 	       stream
 	       (read-char stream)
 	       digit)
-      (format nil "~C~@[~A~]~A"
-	      character
-	      digit
-	      (read-as-string stream t t t)))))
+      (error 'no-dispatch-function :name char))))
 
 ;;;; READTABLE
 (named-readtables:defreadtable as-string
