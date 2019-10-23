@@ -14,10 +14,10 @@
   ;; See http://www.lispworks.com/documentation/HyperSpec/Body/02_ad.htm#charsyntaxtypesinstdsyntax
   (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
 
+;;;; READ-AS-STRING
 (declaim (ftype (function (&optional stream boolean t boolean)
 			  (or string t))
 		read-as-string))
-
 (defun read-as-string(&optional(*standard-input* *standard-input*)
 		       (eof-error-p T)
 		       (eof-value nil)
