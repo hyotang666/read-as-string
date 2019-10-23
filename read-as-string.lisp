@@ -25,10 +25,23 @@
 		       (eof-error-p T)
 		       (eof-value nil)
 		       (recursive-p nil))
-  (handler-case(funcall(parser(list (peek-char(not recursive-p)))))
-    (end-of-file(condition)(if eof-error-p
-			     (error condition)
-			     eof-value))))
+  (let((*readtable*
+	 (named-readtables:find-readtable 'as-string))
+       (char
+	 (peek-char (null recursive-p)
+		    *standard-input*
+		    eof-error-p
+		    eof-value
+		    recursive-p)))
+    (if(eq char eof-value)
+      char
+      (concatenate 'string
+		   (if recursive-p
+		     (Read-string-till (complement (Delimiter *spaces*)))
+		     "")
+		   (if(get-macro-character char)
+		     (read *standard-input* eof-error-p eof-value recursive-p)
+		     (read-token))))))
 
 (defun read-token(&optional (*standard-input* *standard-input*))
   (uiop:reduce/strcat
