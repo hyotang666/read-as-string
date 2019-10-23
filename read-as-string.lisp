@@ -55,50 +55,6 @@
 	  :collect (Read-delimited-string (read-char))
 	  :else :collect (read-char))))
 
-;;;; READTABLE
-(named-readtables:defreadtable as-string
-  (:macro-char #\" '|"reader|)
-  (:macro-char #\' '|'reader|)
-  (:macro-char #\( '|paren-reader|)
-  (:macro-char #\` '|`reader|)
-  (:macro-char #\; '|;reader|)
-  (:macro-char #\# '|#reader|)
-  (:syntax-from :common-lisp #\) #\))
-  )
-
-(defvar *dispatch-macros* (make-hash-table))
-
-(defun add-dispatcher(char fun)
-  (setf (gethash (char-upcase char)
-		 *dispatch-macros*)
-	fun))
-
-(defun get-dispatcher(char)
-  (values (gethash (char-upcase char)
-		   *dispatch-macros*)))
-
-(add-dispatcher #\# '|##reader|)
-(add-dispatcher #\( '|#paren-reader|)
-(add-dispatcher #\= '|#=reader|)
-(add-dispatcher #\+ '|#+reader|)
-(add-dispatcher #\- '|#+reader|)
-(add-dispatcher #\* '|#=reader|)
-(add-dispatcher #\\ '|#=reader|)
-(add-dispatcher #\' '|#=reader|)
-(add-dispatcher #\) (get-dispatch-macro-character #\# #\) (copy-readtable nil)))
-(add-dispatcher #\< (get-dispatch-macro-character #\# #\< (copy-readtable nil)))
-(add-dispatcher #\: '|#=reader|)
-(add-dispatcher #\| '|#\|reader|)
-(add-dispatcher #\. '|#=reader|)
-(add-dispatcher #\A '|#=reader|)
-(add-dispatcher #\B '|#=reader|)
-(add-dispatcher #\C '|#=reader|)
-(add-dispatcher #\O '|#=reader|)
-(add-dispatcher #\P '|#=reader|)
-(add-dispatcher #\R '|#=reader|)
-(add-dispatcher #\S '|#=reader|)
-(add-dispatcher #\X '|#=reader|)
-
 ;;; MACRO CHARS
 (defun |"reader|(stream character)
   (prin1-to-string(funcall (load-time-value
@@ -150,6 +106,50 @@
 	      character
 	      digit
 	      (read-as-string stream t t t)))))
+
+;;;; READTABLE
+(named-readtables:defreadtable as-string
+  (:macro-char #\" '|"reader|)
+  (:macro-char #\' '|'reader|)
+  (:macro-char #\( '|paren-reader|)
+  (:macro-char #\` '|`reader|)
+  (:macro-char #\; '|;reader|)
+  (:macro-char #\# '|#reader|)
+  (:syntax-from :common-lisp #\) #\))
+  )
+
+(defvar *dispatch-macros* (make-hash-table))
+
+(defun add-dispatcher(char fun)
+  (setf (gethash (char-upcase char)
+		 *dispatch-macros*)
+	fun))
+
+(defun get-dispatcher(char)
+  (values (gethash (char-upcase char)
+		   *dispatch-macros*)))
+
+(add-dispatcher #\# '|##reader|)
+(add-dispatcher #\( '|#paren-reader|)
+(add-dispatcher #\= '|#=reader|)
+(add-dispatcher #\+ '|#+reader|)
+(add-dispatcher #\- '|#+reader|)
+(add-dispatcher #\* '|#=reader|)
+(add-dispatcher #\\ '|#=reader|)
+(add-dispatcher #\' '|#=reader|)
+(add-dispatcher #\) (get-dispatch-macro-character #\# #\) (copy-readtable nil)))
+(add-dispatcher #\< (get-dispatch-macro-character #\# #\< (copy-readtable nil)))
+(add-dispatcher #\: '|#=reader|)
+(add-dispatcher #\| '|#\|reader|)
+(add-dispatcher #\. '|#=reader|)
+(add-dispatcher #\A '|#=reader|)
+(add-dispatcher #\B '|#=reader|)
+(add-dispatcher #\C '|#=reader|)
+(add-dispatcher #\O '|#=reader|)
+(add-dispatcher #\P '|#=reader|)
+(add-dispatcher #\R '|#=reader|)
+(add-dispatcher #\S '|#=reader|)
+(add-dispatcher #\X '|#=reader|)
 
 ;;; DISPATCH MACRO CHARS
 (defun |##reader|(stream character number)
