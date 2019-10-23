@@ -12,6 +12,7 @@
 (pushnew :read-as-string *features*)
 
 (eval-when(:compile-toplevel :load-toplevel :execute)
+  ;; See http://www.lispworks.com/documentation/HyperSpec/Body/02_ad.htm#charsyntaxtypesinstdsyntax
   (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
 (defvar *terminal-macro-chars* '(#\" #\' #\( #\) #\, #\; #\`))
 (defvar *terminals* (append *spaces* *terminal-macro-chars*))
