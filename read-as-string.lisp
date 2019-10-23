@@ -30,6 +30,21 @@
 			     (error condition)
 			     eof-value))))
 
+(defun read-token(&optional (*standard-input* *standard-input*))
+  (uiop:reduce/strcat
+    (loop :for char := (peek-char nil nil nil nil)
+	  :while char
+	  :if (or (find char *spaces*)
+		  (multiple-value-bind(macro non-terminal-p)(get-macro-character char)
+		    (and macro
+			 (not non-terminal-p))))
+	  :do (loop-finish)
+	  :else :if (char= #\\ char)
+	  :collect (read-char) :and :collect (read-char)
+	  :else :if (char= #\| char)
+	  :collect (Read-delimited-string (read-char))
+	  :else :collect (read-char))))
+
 ;;;; READTABLE
 (named-readtables:defreadtable as-string
   (:macro-char #\" '|"reader|)
