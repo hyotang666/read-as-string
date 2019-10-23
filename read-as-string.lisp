@@ -1,6 +1,5 @@
 (in-package :cl-user)
 (defpackage :read-as-string(:use :cl :core-reader)
-  (:import-from :fields #:Propagatef)
   (:export
     ; main api.
     #:read-as-string

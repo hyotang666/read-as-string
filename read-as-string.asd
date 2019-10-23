@@ -2,7 +2,7 @@
 (in-package :asdf)
 
 (defsystem :read-as-string
-  :version "0.3.3"
+  :version "0.3.4"
   :author "Shinichi Sato"
   :description "Reading S-Expression string from stream."
   :long-description #.(read-file-string(subpathname *load-pathname*
@@ -13,7 +13,6 @@
    "named-readtables" ; Readtable manager.
    "core-reader"        ; utilities for making stream reader.
    "uiop"               ; utilities.
-   "fields"             ; field utilities.
    )
   :components((:file "read-as-string")))
 
