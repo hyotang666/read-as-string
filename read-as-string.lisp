@@ -139,7 +139,8 @@
 (add-dispatcher #\\ '|#=reader|)
 (add-dispatcher #\' '|#=reader|)
 (add-dispatcher #\) (get-dispatch-macro-character #\# #\) (copy-readtable nil)))
-(add-dispatcher #\< (get-dispatch-macro-character #\# #\< (copy-readtable nil)))
+(add-dispatcher #\< (or (get-dispatch-macro-character #\# #\< (copy-readtable nil))
+			'|#<reader|))
 (add-dispatcher #\: '|#=reader|)
 (add-dispatcher #\| '|#\|reader|)
 (add-dispatcher #\. '|#=reader|)
@@ -203,6 +204,11 @@
 	  character
 	  (read-as-string stream t t t)
 	  (read-as-string stream t t t)))
+
+;;; For ECL.
+(defun |#<reader|(stream character number)
+  (declare(ignore stream character number))
+  (error 'reader-error))
 
 (defun commentp(string)
   #+ecl(check-type string string)
