@@ -209,22 +209,45 @@
 
 #?(with-input-from-string(*standard-input* "#<unreadable object>") ; unreadable object
     (read-as-string))
+:signals read-unreadable-object
+
+; NOTE!
+; When specify `*MUFFLE-READER-ERROR*` with T,
+; READ-UNREADABLE-OBJECT is not signaled.
+#?(with-input-from-string(*standard-input* "#<unreadable object>")
+    (let((*muffle-reader-error*
+	   T))
+      (read-as-string)))
 => "#<unreadable object>"
+
+; NOTE!
+; In such case, returned string may not correct.
+#?(with-input-from-string(*standard-input* "#<FUNCTION > >") ; known bug 1
+    (let((*muffle-reader-error*
+	   T))
+      (values (read-as-string)
+	      (read-as-string))))
+:values ("#<FUNCTION >" ">")
+,:test equal
+
+#?(with-input-from-string(*standard-input* "#<FUNCTION \\> >")
+    (let((*muffle-reader-error*
+	   T))
+      (read-as-string)))
+=> "#<FUNCTION \\> >"
 
 #?(with-input-from-string(*standard-input* "#Unknown Dispatcher") ; Unknown dispatch macro char
     (read-as-string))
+:signals no-dispatch-function
+
+; NOTE!
+; When specify `*MUFFLE-READER-ERROR*` with T,
+; NO-DISPATCH-FUNCTION  is not signaled.
+#?(with-input-from-string(*standard-input* "#Unknown Dispatcher")
+    (let((*muffle-reader-error*
+	   T))
+      (read-as-string)))
 => "#Unknown"
-
-; NOTE!
-#?(with-input-from-string(*standard-input* "#<FUNCTION > >") ; known bug
-    (read-as-string))
-=> "#<FUNCTION >"
-
-; NOTE!
-; Could not handle dispatch macro like #"...." which found in fxml.
-#?(with-input-from-string(*standard-input* "#\"\"") ; known bug
-    (read-as-string))
-:signals end-of-file
 
 (requirements-about COMMENTP)
 

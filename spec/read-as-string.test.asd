@@ -2,7 +2,7 @@
 (in-package :asdf)
 (defsystem "read-as-string.test"
   :version
-  "0.5.2"
+  "1.0.0"
   :depends-on
   (:jingoh "read-as-string")
   :components
