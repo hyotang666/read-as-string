@@ -254,35 +254,6 @@
 
 ;;;; Exceptional-Situations:
 
-(requirements-about READ-AS-STRING :doc-type function)
-
-;;;; Description:
-
-#+syntax
-(READ-AS-STRING &optional (*standard-input* *standard-input*) (eof-error-p t) (eof-value
-                                                                               nil) (recursive-p
-                                                                                     nil)) ; => result
-
-;;;; Arguments and Values:
-
-; *standard-input* := stream
-
-; eof-error-p := boolean
-
-; eof-value := t
-
-; recursive-p := boolean
-
-; result := 
-
-;;;; Affected By:
-
-;;;; Side-Effects:
-
-;;;; Notes:
-
-;;;; Exceptional-Situations:
-
 (requirements-about *MUFFLE-READER-ERROR* :doc-type variable)
 
 ;;;; Description:
