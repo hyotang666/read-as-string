@@ -170,6 +170,8 @@
 			 (values (eql t) &optional))
 	       set-dispatcher))
 (defun set-dispatcher(char fun)
+  #+clisp
+  (check-type fun (or symbol function))
   (setf (gethash (char-upcase char)
 		 *dispatch-macros*)
 	fun)
