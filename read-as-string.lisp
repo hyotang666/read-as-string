@@ -20,6 +20,16 @@
 	     (format stream "No dispatch function defined for ~S"
 		     (cell-error-name condition)))))
 
+(define-condition read-unreadable-object(reader-error)
+  ()
+  (:report (lambda(condition stream)
+	     (let((s
+		    (slot-value condition 'stream)))
+	       (format stream "Unreadable object comes. \"#<\"~%")
+	       (if(typep s 'file-stream)
+		 (format stream "File: ~S" (pathname s))
+		 (format stream "Stream: ~S" s))))))
+
 (eval-when(:compile-toplevel :load-toplevel :execute)
   ;; See http://www.lispworks.com/documentation/HyperSpec/Body/02_ad.htm#charsyntaxtypesinstdsyntax
   (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
