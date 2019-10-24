@@ -449,7 +449,7 @@
 ;;;; Arguments and Values:
 
 ; *standard-input* := input stream, otherwise error.
-#?(read-token "not stream") :signals type-error
+#?(read-token "not stream") :signals condition
 
 ; result := string
 
