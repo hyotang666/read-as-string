@@ -500,25 +500,3 @@
 ,:test equal
 
 ;;;; Exceptional-Situations:
-
-(requirements-about COMMENTP :doc-type function)
-
-;;;; Description:
-
-#+syntax
-(COMMENTP string) ; => result
-
-;;;; Arguments and Values:
-
-; string := 
-
-; result := 
-
-;;;; Affected By:
-
-;;;; Side-Effects:
-
-;;;; Notes:
-
-;;;; Exceptional-Situations:
-
