@@ -2,7 +2,7 @@
 (in-package :asdf)
 
 (defsystem :read-as-string
-  :version "1.0.1"
+  :version "1.0.2"
   :author "Shinichi Sato"
   :description "Reading S-Expression string from stream."
   :long-description #.(read-file-string(subpathname *load-pathname*
