@@ -342,11 +342,11 @@
 ;;;; Arguments and Values:
 
 ; char := character otherwise error.
-#?(set-dispatcher "not-character" '#:dummy) :signals type-error
+#?(set-dispatcher "not-character" '#:dummy) :signals condition
 
 ; fun := (or function symbol) as (function(stream character (integer 0 *))string)
 ; otherwise error.
-#?(set-dispatcher #\+ "not (or symbol function)") :signals type-error
+#?(set-dispatcher #\+ "not (or symbol function)") :signals condition
 
 ; result := (eql t)
 #?(set-dispatcher #\+ 'list) => T
