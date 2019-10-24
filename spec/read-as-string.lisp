@@ -391,21 +391,113 @@
 (requirements-about READ-TOKEN :doc-type function)
 
 ;;;; Description:
+; Read token from STREAM.
+; About `token`, see http://www.lispworks.com/documentation/HyperSpec/Body/02_b.htm
 
 #+syntax
 (READ-TOKEN &optional (*standard-input* *standard-input*)) ; => result
 
+#?(with-input-from-string(*standard-input* "token")
+    (read-token))
+=> "token"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "token\\single-escaped")
+    (read-token))
+=> "token\\single-escaped"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "|multiple escaped|")
+    (read-token))
+=> "|multiple escaped|"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "token|multiple escaped|")
+    (read-token))
+=> "token|multiple escaped|"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "|multiple escaped|token")
+    (read-token))
+=> "|multiple escaped|token"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "token|multiple escaped|token")
+    (read-token))
+=> "token|multiple escaped|token"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "|e.g. ' never treated as reader macro|")
+    (read-token))
+=> "|e.g. ' never treated as reader macro|"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "|escaped|not-escaped|escaped|")
+    (read-token))
+=> "|escaped|not-escaped|escaped|"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "012")
+    (read-token))
+=> "012"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "012.")
+    (read-token))
+=> "012."
+,:test equal
+
+#?(with-input-from-string(*standard-input* "012.345")
+    (read-token))
+=> "012.345"
+,:test equal
+
 ;;;; Arguments and Values:
 
-; *standard-input* := 
+; *standard-input* := input stream, otherwise error.
+#?(read-token "not stream") :signals type-error
 
-; result := 
+; result := string
 
 ;;;; Affected By:
 
 ;;;; Side-Effects:
+; May consume stream contents.
 
 ;;;; Notes:
+; When whitespaces or terminal character comes first,
+; empty string is returned.
+#?(with-input-from-string(*standard-input* "")
+    (read-token))
+=> ""
+,:test equal
+
+; Whitespaces or terminal characters are never consumed.
+#?(with-input-from-string(*standard-input* " ")
+    (values (read-token)
+	    (read-char)))
+:values ("" #\space)
+
+#?(with-input-from-string(*standard-input* "'<--- terminal character")
+    (read-token))
+=> ""
+,:test equal
+
+#?(with-input-from-string(*standard-input* "a#<---Non-terminal")
+    (read-token))
+=> "a#<---Non-terminal"
+,:test equal
+
+; Never check notation validity.
+#?(with-input-from-string(*standard-input* "non-existant-package::symbol")
+    (read-token))
+=> "non-existant-package::symbol"
+,:test equal
+
+#?(with-input-from-string(*standard-input* "invalid:::colon")
+    (read-token))
+=> "invalid:::colon"
+,:test equal
 
 ;;;; Exceptional-Situations:
 
