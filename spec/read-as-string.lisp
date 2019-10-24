@@ -328,24 +328,33 @@
 
 ;;;; Notes:
 
-(requirements-about SET-DISPATCHER :doc-type function)
+(requirements-about SET-DISPATCHER :doc-type function
+		    :around (let((read-as-string::*dispatch-macros*
+				   (make-hash-table)))
+			      (call-body)))
 
 ;;;; Description:
+; Same with CL:SET-DISPATCH-MACRO-CHARACTER.
 
 #+syntax
 (SET-DISPATCHER char fun) ; => result
 
 ;;;; Arguments and Values:
 
-; char := 
+; char := character otherwise error.
+#?(set-dispatcher "not-character" '#:dummy) :signals type-error
 
-; fun := 
+; fun := (or function symbol) as (function(stream character (integer 0 *))string)
+; otherwise error.
+#?(set-dispatcher #\+ "not (or symbol function)") :signals type-error
 
-; result := 
+; result := (eql t)
+#?(set-dispatcher #\+ 'list) => T
 
 ;;;; Affected By:
 
 ;;;; Side-Effects:
+; Modify state of READ-AS-STRING::*DISPATCH-MACROS* internally.
 
 ;;;; Notes:
 
