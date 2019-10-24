@@ -66,7 +66,7 @@
 		     (read-token))))))
 
 (defun read-token(&optional (*standard-input* *standard-input*))
-  (uiop:reduce/strcat
+  (String-concat
     (loop :for char := (peek-char nil nil nil nil)
 	  :while char
 	  :if (or (find char *spaces*)
