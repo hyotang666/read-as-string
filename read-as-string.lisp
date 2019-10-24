@@ -18,7 +18,12 @@
   ()
   (:report (lambda(condition stream)
 	     (format stream "No dispatch function defined for ~S"
-		     (cell-error-name condition)))))
+		     (cell-error-name condition))
+	     (let((in
+		    (stream-error-stream condition)))
+	       (if(typep in 'file-stream)
+		 (format stream "~%File: ~S" (pathname in))
+		 (format stream "~%Stream: ~S" in))))))
 
 (define-condition read-unreadable-object(reader-error)
   ()
@@ -127,7 +132,7 @@
 	(format nil "~C~A"
 		character
 		(read-as-string stream t t t))
-	(error 'no-dispatch-function :name char)))))
+	(error 'no-dispatch-function :name char :stream stream)))))
 
 ;;;; READTABLE
 (named-readtables:defreadtable as-string
