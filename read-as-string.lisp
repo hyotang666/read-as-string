@@ -236,7 +236,7 @@
 			      t
 			      t
 			      t))
-    (error 'reader-error :stream stream)))
+    (error 'read-unreadable-object :stream stream)))
 
 (defun commentp(string)
   #+ecl(check-type string string)
