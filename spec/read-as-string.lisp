@@ -363,21 +363,28 @@
 (requirements-about GET-DISPATCHER :doc-type function)
 
 ;;;; Description:
+; Like CL:GET-DISPATCH-MACRO-CHARACTER.
 
 #+syntax
 (GET-DISPATCHER char) ; => result
 
 ;;;; Arguments and Values:
 
-; char := 
+; char := character, otherwise condition.
+#?(get-dispatcher "not character") :signals condition
 
-; result := 
+; result := (or null (or symbol function))
+#?(get-dispatcher #\') :be-the (or symbol function)
+#?(get-dispatcher #\!) => NIL
 
 ;;;; Affected By:
+; State of READ-AS-STRING::*DISPATCH-MACROS*.
 
 ;;;; Side-Effects:
+; none
 
 ;;;; Notes:
+; Now supported dispatcher is only #\#.
 
 ;;;; Exceptional-Situations:
 
