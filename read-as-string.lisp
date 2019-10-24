@@ -1,9 +1,25 @@
 (in-package :cl-user)
 (defpackage :read-as-string(:use :cl :core-reader)
   (:export
-    ; main api.
+    ;; main api.
     #:read-as-string
-    ; internal useful helpers.
+
+    ;; variables.
+    #:*muffle-reader-error*
+
+    ;; conditions
+    #:no-dispatch-function
+    #:read-unreadable-object
+
+    ;; readtable name
+    #:as-string
+
+    ;; dispatcher
+    #:set-dispatcher
+    #:get-dispatcher
+
+    ;; internal useful helpers.
+    #:read-token
     #:commentp
 	   ))
 (in-package :read-as-string)
