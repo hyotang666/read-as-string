@@ -254,3 +254,160 @@
 
 ;;;; Exceptional-Situations:
 
+(requirements-about READ-AS-STRING :doc-type function)
+
+;;;; Description:
+
+#+syntax
+(READ-AS-STRING &optional (*standard-input* *standard-input*) (eof-error-p t) (eof-value
+                                                                               nil) (recursive-p
+                                                                                     nil)) ; => result
+
+;;;; Arguments and Values:
+
+; *standard-input* := stream
+
+; eof-error-p := boolean
+
+; eof-value := t
+
+; recursive-p := boolean
+
+; result := 
+
+;;;; Affected By:
+
+;;;; Side-Effects:
+
+;;;; Notes:
+
+;;;; Exceptional-Situations:
+
+(requirements-about *MUFFLE-READER-ERROR* :doc-type variable)
+
+;;;; Description:
+
+;;;; Value type is NULL
+;#? *MUFFLE-READER-ERROR* :be-the ???
+
+; Initial value is NIL
+
+;;;; Affected By:
+
+;;;; Notes:
+
+(requirements-about NO-DISPATCH-FUNCTION :doc-type TYPE)
+
+;;;; Description:
+;;;; Class Precedence List: (case in SBCL)
+; no-dispatch-function reader-error parse-error stream-error cell-error error serious-condition condition slot-object t
+
+;;;; Effective Slots:
+
+; NAME [Type] T
+; [READER] cell-error-name
+
+; STREAM [Type] T
+; [READER] stream-error-stream
+
+;;;; Notes:
+
+(requirements-about READ-UNREADABLE-OBJECT :doc-type TYPE)
+
+;;;; Description:
+;;;; Class Precedence List: (case in SBCL)
+; read-unreadable-object reader-error parse-error stream-error error serious-condition condition slot-object t
+
+;;;; Effective Slots:
+
+; STREAM [Type] T
+; [READER] stream-error-stream
+
+;;;; Notes:
+
+(requirements-about SET-DISPATCHER :doc-type function)
+
+;;;; Description:
+
+#+syntax
+(SET-DISPATCHER char fun) ; => result
+
+;;;; Arguments and Values:
+
+; char := 
+
+; fun := 
+
+; result := 
+
+;;;; Affected By:
+
+;;;; Side-Effects:
+
+;;;; Notes:
+
+;;;; Exceptional-Situations:
+
+(requirements-about GET-DISPATCHER :doc-type function)
+
+;;;; Description:
+
+#+syntax
+(GET-DISPATCHER char) ; => result
+
+;;;; Arguments and Values:
+
+; char := 
+
+; result := 
+
+;;;; Affected By:
+
+;;;; Side-Effects:
+
+;;;; Notes:
+
+;;;; Exceptional-Situations:
+
+(requirements-about READ-TOKEN :doc-type function)
+
+;;;; Description:
+
+#+syntax
+(READ-TOKEN &optional (*standard-input* *standard-input*)) ; => result
+
+;;;; Arguments and Values:
+
+; *standard-input* := 
+
+; result := 
+
+;;;; Affected By:
+
+;;;; Side-Effects:
+
+;;;; Notes:
+
+;;;; Exceptional-Situations:
+
+(requirements-about COMMENTP :doc-type function)
+
+;;;; Description:
+
+#+syntax
+(COMMENTP string) ; => result
+
+;;;; Arguments and Values:
+
+; string := 
+
+; result := 
+
+;;;; Affected By:
+
+;;;; Side-Effects:
+
+;;;; Notes:
+
+;;;; Exceptional-Situations:
+
