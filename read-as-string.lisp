@@ -24,7 +24,7 @@
   ()
   (:report (lambda(condition stream)
 	     (let((s
-		    (slot-value condition 'stream)))
+		    (stream-error-stream condition)))
 	       (format stream "Unreadable object comes. \"#<\"~%")
 	       (if(typep s 'file-stream)
 		 (format stream "File: ~S" (pathname s))
