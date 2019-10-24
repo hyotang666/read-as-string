@@ -163,10 +163,14 @@
 
 (defvar *dispatch-macros* (make-hash-table))
 
+(declaim(ftype (function (character (or symbol function))
+			 (values (eql t) &optional))
+	       set-dispatcher))
 (defun set-dispatcher(char fun)
   (setf (gethash (char-upcase char)
 		 *dispatch-macros*)
-	fun))
+	fun)
+  T)
 
 (defun get-dispatcher(char)
   (values (gethash (char-upcase char)
