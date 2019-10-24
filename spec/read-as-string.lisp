@@ -286,13 +286,16 @@
 (requirements-about *MUFFLE-READER-ERROR* :doc-type variable)
 
 ;;;; Description:
+; Variable to control reader error.
+; When T, the reader error is muffled except end-of-file.
+; This is useful to analyze lisp source which may include invalid form.
 
-;;;; Value type is NULL
-;#? *MUFFLE-READER-ERROR* :be-the ???
+;;;; Value type is generalized boolean.
 
 ; Initial value is NIL
 
 ;;;; Affected By:
+; READ-AS-STRING::|#reader|, READ-AS-STRING::|#<reader|.
 
 ;;;; Notes:
 
