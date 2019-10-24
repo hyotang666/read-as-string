@@ -10,6 +10,9 @@
 
 (pushnew :read-as-string *features*)
 
+;;;; VARIABLES
+(defvar *muffle-reader-error* nil)
+
 ;;;; CONDITIONS
 (define-condition no-dispatch-function(reader-error cell-error)
   ()
