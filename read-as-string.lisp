@@ -241,10 +241,14 @@
 					  nil)))
 		       ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
 			(let((digit
-			       (Read-string-till #'digit-char-p)))
-			  (acc (|#\|reader| stream
-					    (read-char stream)
-					    digit))))
+			       (Read-string-till (complement #'digit-char-p)))
+			     (char
+			       (peek-char nil stream)))
+			  (if(char= #\| char) ; nested comment with digit.
+			    (acc (|#\|reader| stream
+					      (read-char stream)
+					      digit))
+			    (acc digit))))
 		       (otherwise (acc char))))
 		    (otherwise (acc char)))))))
 
