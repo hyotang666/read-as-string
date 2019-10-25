@@ -245,34 +245,6 @@
       (read-as-string)))
 => "#Unknown"
 
-(requirements-about COMMENTP)
-
-;;;; Description:
-; accepts string, tests such string is comment or not.
-#?(commentp " ; line comment") => T
-#?(commentp " #|block comment|#") => T
-#?(commentp "#+comment hoge") => NIL
-
-#+syntax
-(COMMENTP string) ; => result
-
-;;;; Arguments and Values:
-
-; string := string otherwise error
-#?(commentp :not-string) :signals error
-
-; result := boolean
-
-;;;; Affected By:
-; none
-
-;;;; Side-Effects:
-; none
-
-;;;; Notes:
-
-;;;; Exceptional-Situations:
-
 (requirements-about *MUFFLE-READER-ERROR* :doc-type variable)
 
 ;;;; Description:
