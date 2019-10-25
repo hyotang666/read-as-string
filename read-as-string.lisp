@@ -20,8 +20,7 @@
 
     ;; internal useful helpers.
     #:read-token
-    #:commentp
-	   ))
+    ))
 (in-package :read-as-string)
 
 (pushnew :read-as-string *features*)
@@ -267,16 +266,3 @@
 			      t
 			      t))
     (error 'read-unreadable-object :stream stream)))
-
-(defun commentp(string)
-  #+ecl(check-type string string)
-  (labels((LINE-COMMENTP(string)
-	    (with-input-from-string(s string)
-	      (char= #\; (peek-char t s))))
-	  (BLOCK-COMMENTP(string)
-	    (with-input-from-string(s string)
-	      (and (char= #\# (peek-char t s))
-		   (char= #\| (progn (read-char s) ; discard #\#
-				     (read-char s)))))))
-    (or (LINE-COMMENTP string)
-	(BLOCK-COMMENTP string))))
