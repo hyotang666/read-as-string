@@ -72,13 +72,14 @@
 		    recursive-p)))
     (if(eq char eof-value)
       char
-      (concatenate 'string
-		   (if recursive-p
-		     (Read-string-till (complement (Delimiter *spaces*)))
-		     "")
-		   (if(get-macro-character char)
-		     (read *standard-input* eof-error-p eof-value recursive-p)
-		     (read-token))))))
+      (multiple-value-call #'concatenate
+	'string
+	(if recursive-p
+	  (Read-string-till (complement (Delimiter *spaces*)))
+	  "")
+	(if(get-macro-character char)
+	  (read *standard-input* eof-error-p eof-value recursive-p)
+	  (read-token))))))
 
 (declaim(ftype (function (&optional stream)
 			 (values string &optional))
