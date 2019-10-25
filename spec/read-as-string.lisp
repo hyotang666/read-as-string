@@ -195,10 +195,6 @@
     (read-as-string))
 => "(#|block comment in s-expression|#)"
 
-#?(with-input-from-string(*standard-input* ":foo") ; keyword
-    (read-as-string))
-=> ":foo"
-
 #?(with-input-from-string(*standard-input* "#C(1 2)") ; complex
     (read-as-string))
 => "#C(1 2)"
