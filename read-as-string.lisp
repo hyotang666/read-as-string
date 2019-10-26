@@ -50,9 +50,12 @@
 		 (format stream "File: ~S" (pathname s))
 		 (format stream "Stream: ~S" s))))))
 
-(eval-when(:compile-toplevel :load-toplevel :execute)
-  ;; See http://www.lispworks.com/documentation/HyperSpec/Body/02_ad.htm#charsyntaxtypesinstdsyntax
-  (defvar *spaces* '(#\space #\newline #\tab #\page #\return #\linefeed)))
+(declaim(ftype (function (character)
+			 (values (or null character)
+				 &optional))
+	       whitecharp))
+(setf (symbol-function 'whitecharp)
+      (Delimiter '(#\space #\newline #\tab #\page #\return #\linefeed)))
 
 ;;;; READ-AS-STRING
 (declaim (ftype (function (&optional stream boolean t boolean)
@@ -75,7 +78,7 @@
       (multiple-value-call #'concatenate
 	'string
 	(if recursive-p
-	  (Read-string-till (complement (Delimiter *spaces*)))
+	  (Read-string-till (complement #'whitecharp))
 	  "")
 	(if(get-macro-character char)
 	  (read *standard-input* eof-error-p eof-value recursive-p)
@@ -88,7 +91,7 @@
   (String-concat
     (loop :for char := (peek-char nil nil nil nil)
 	  :while char
-	  :if (or (find char *spaces*)
+	  :if (or (whitecharp char)
 		  (multiple-value-bind(macro non-terminal-p)(get-macro-character char)
 		    (and macro
 			 (not non-terminal-p))))
