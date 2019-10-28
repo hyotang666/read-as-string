@@ -265,7 +265,7 @@
 
 (defun |#<reader|(stream character number)
   (if *muffle-reader-error*
-    (format nil "#~A~C~A"
+    (format nil "#~@[~D~]~C~A"
 	    number
 	    character
 	    (Read-string-till (Char-pred #\>)
