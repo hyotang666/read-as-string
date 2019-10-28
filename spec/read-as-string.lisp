@@ -374,7 +374,7 @@
 ; About `token`, see http://www.lispworks.com/documentation/HyperSpec/Body/02_b.htm
 
 #+syntax
-(READ-TOKEN &optional (*standard-input* *standard-input*)) ; => result
+(READ-TOKEN &optional stream) ; => result
 
 #?(with-input-from-string(*standard-input* "token")
     (read-token))
@@ -433,8 +433,14 @@
 
 ;;;; Arguments and Values:
 
-; *standard-input* := input stream, otherwise error.
+; stream := (or stream null)
 #?(read-token "not stream") :signals condition
+
+; When specified nil, it represents *standard-input*.
+#?(with-input-from-string(*standard-input* "example")
+    (read-token nil))
+=> "example"
+,:test equal
 
 ; result := string
 
