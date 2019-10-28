@@ -65,22 +65,34 @@
 		       (eof-error-p T)
 		       (eof-value nil)
 		       (recursive-p nil))
-  (let((*readtable*
+  (flet((may-peek()
+	  (let
+	    (
+	     (return
+	       (peek-char (null recursive-p)
+			  nil
+			  eof-error-p
+			  eof-value
+			  recursive-p))
+	     )
+	    (if(eq return eof-value)
+	      (return-from read-as-string eof-value)
+	      return))))
+    (let
+      (
+       (*readtable*
 	 (named-readtables:find-readtable 'as-string))
        (char
-	 (peek-char (null recursive-p)
-		    *standard-input*
-		    eof-error-p
-		    eof-value
-		    recursive-p)))
-    (if(eq char eof-value)
-      char
+	 (may-peek))
+       )
       (multiple-value-call #'concatenate
 	'string
 	(if recursive-p
 	  (Read-string-till (complement #'whitecharp))
 	  "")
-	(if(get-macro-character char)
+	(if(get-macro-character (if recursive-p
+				  (may-peek)
+				  char))
 	  (read *standard-input* eof-error-p eof-value recursive-p)
 	  (read-token))))))
 
