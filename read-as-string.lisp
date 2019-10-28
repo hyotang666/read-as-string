@@ -86,7 +86,8 @@
       (
        (*readtable*
 	 (named-readtables:find-readtable 'as-string))
-       (*standard-input* (or stream *standard-input*))
+       (*standard-input*
+	 (or stream *standard-input*))
        (char
 	 (may-peek))
        )
