@@ -102,10 +102,10 @@
 	  (read *standard-input* eof-error-p eof-value recursive-p)
 	  (read-token))))))
 
-(declaim(ftype (function (&optional stream)
+(declaim(ftype (function (&optional (or stream null))
 			 (values string &optional))
 	       read-token))
-(defun read-token(&optional (*standard-input* *standard-input*))
+(defun read-token(&optional stream &aux (*standard-input* (or stream *standard-input*)))
   (String-concat
     (loop :for char := (peek-char nil nil nil nil)
 	  :while char
