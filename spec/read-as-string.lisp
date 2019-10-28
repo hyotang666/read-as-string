@@ -115,6 +115,11 @@
     (read-as-string))
 => "(())"
 
+#?(with-input-from-string(*standard-input* (format nil "(~%)")) ; nested
+    (read-as-string))
+=> "(
+)"
+
 #?(with-input-from-string(*standard-input* "(foo . bar)") ; dotted
     (read-as-string))
 => "(foo . bar)"
