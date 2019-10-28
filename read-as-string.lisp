@@ -139,8 +139,9 @@
 
 (defun |#reader|(stream character)
   (let*((digit
-	  (Read-string-till (complement #'digit-char-p)
-			    stream))
+	  (parse-integer (Read-string-till (complement #'digit-char-p)
+					   stream)
+			 :junk-allowed T))
 	(char
 	  (peek-char nil stream))
 	(reader
