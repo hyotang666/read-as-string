@@ -11,13 +11,22 @@
 => "foo"
 
 #+syntax
-(READ-AS-STRING &optional (*standard-input* *standard-input*) (eof-error-p t) (eof-value nil) (recursive-p nil)) ; => result
+(READ-AS-STRING &optional stream (eof-error-p t) (eof-value nil) (recursive-p nil)) ; => result
 
 ;;;; Arguments and Values:
 
-; `*standard-input*` := input-stream, otherwise error.
-#?(read-as-string "hoge") :signals error
-,:ignore-signals warning
+; stream := (or null stream)
+#?(read-as-string "not (or null stream)") :signals condition
+
+; When specified NIL, it treated as *standard-input*.
+#?(with-input-from-string(*standard-input* ":example")
+    (read-as-string nil))
+=> ":example"
+
+; The default is NIL.
+#?(with-input-from-string(*standard-input* ":example")
+    (read-as-string))
+=> ":example"
 
 ; eof-error-p := boolean. specify to signal error when get eof.
 ; The default is T.

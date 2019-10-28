@@ -58,10 +58,14 @@
       (Delimiter '(#\space #\newline #\tab #\page #\return #\linefeed)))
 
 ;;;; READ-AS-STRING
-(declaim (ftype (function (&optional stream boolean t boolean)
+(declaim (ftype (function (&optional (or stream null)
+				     boolean
+				     t
+				     boolean)
 			  (or string t))
 		read-as-string))
-(defun read-as-string(&optional(*standard-input* *standard-input*)
+(defun read-as-string(&optional
+		       stream
 		       (eof-error-p T)
 		       (eof-value nil)
 		       (recursive-p nil))
@@ -78,10 +82,11 @@
 	    (if(eq return eof-value)
 	      (return-from read-as-string eof-value)
 	      return))))
-    (let
+    (let*
       (
        (*readtable*
 	 (named-readtables:find-readtable 'as-string))
+       (*standard-input* (or stream *standard-input*))
        (char
 	 (may-peek))
        )
