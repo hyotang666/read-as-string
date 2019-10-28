@@ -47,7 +47,7 @@
 
 #?(with-input-from-string(s "  () ")
     (read-as-string s t t t))
-=> "  ()"
+=> unspecified ; "  ()" or error.
 
 ; result := string when success, T when met eof and eof-error-p is specified nil.
 
