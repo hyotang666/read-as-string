@@ -45,6 +45,10 @@
     (read-as-string s t t t))
 => "  foo"
 
+#?(with-input-from-string(s "  () ")
+    (read-as-string s t t t))
+=> "  ()"
+
 ; result := string when success, T when met eof and eof-error-p is specified nil.
 
 ;;;; Affected By:
