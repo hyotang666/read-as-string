@@ -174,6 +174,10 @@
     (read-as-string))
 => "#+(or clisp ecl) hoge"
 
+#?(with-input-from-string(*standard-input* "#+unknown (list)")
+    (read-as-string))
+=> "#+unknown (list)"
+
 #?(with-input-from-string(*standard-input* "; comment") ; line comment
     (read-as-string))
 => "; comment"
