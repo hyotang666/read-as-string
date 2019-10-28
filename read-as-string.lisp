@@ -210,23 +210,23 @@
 ;;; DISPATCH MACRO CHARS
 (defun |##reader|(stream character number)
   (declare(ignore stream))
-  (format nil "#~@[~A~]~C"
+  (format nil "#~@[~D~]~C"
 	  number
 	  character))
 
 (defun |#paren-reader|(stream character number)
-  (format nil "#~@[~A~]~A"
+  (format nil "#~@[~D~]~A"
 	  number
 	  (|paren-reader| stream character)))
 
 (defun |#=reader|(stream character number)
-  (format nil "#~@[~A~]~C~A"
+  (format nil "#~@[~D~]~C~A"
 	  number
 	  character
 	  (read-as-string stream t t t)))
 
 (defun |#\|reader|(stream character number)
-  (format nil "#~@[~A~]~C~{~A~}"
+  (format nil "#~@[~D~]~C~{~A~}"
 	  number
 	  character
 	  (uiop:while-collecting(acc)
@@ -257,7 +257,7 @@
 		    (otherwise (acc char)))))))
 
 (defun |#+reader|(stream character number)
-  (format nil "#~@[~A~]~C~A~A"
+  (format nil "#~@[~D~]~C~A~A"
 	  number
 	  character
 	  (read-as-string stream t t t)
