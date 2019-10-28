@@ -152,8 +152,10 @@
 	       (read-char stream)
 	       digit)
       (if *muffle-reader-error*
-	(format nil "~C~A"
+	(format nil "~C~@[~D~]~C~A"
 		character
+		digit
+		(read-char stream)
 		(read-as-string stream t t t))
 	(error 'no-dispatch-function :name char :stream stream)))))
 
