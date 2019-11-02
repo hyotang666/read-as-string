@@ -291,13 +291,7 @@
 
 (defun |#<reader|(stream character number)
   (if *muffle-reader-error*
-    (format nil "#~@[~D~]~C~A"
+    (format nil "#~@[~D~]~A"
 	    number
-	    character
-	    (Read-string-till (Char-pred #\>)
-			      stream
-			      t
-			      t
-			      t
-			      t))
+	    (Read-delimited-string #\> stream character))
     (error 'read-unreadable-object :stream stream)))
