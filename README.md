@@ -1,4 +1,6 @@
-# READ-AS-STRING - Reader which returns S-Expression string.
+# READ-AS-STRING 1.2.4
+## What is this?
+Reading S-Expression string from stream.
 
 ## Current lisp world
 Unlike UNIX, Lisp has READ.
@@ -29,6 +31,7 @@ Usually `(read-from-string (read-as-string stream))` is same with `(read stream)
 Eliminate bugs.
 ### License
 MIT
+
 ### Tested with
 * SBCL/1.5.8
 * CCL/1.11.5
