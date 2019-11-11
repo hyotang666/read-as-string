@@ -169,7 +169,7 @@
 	(char
 	  (peek-char nil stream))
 	(reader
-	  (get-dispatcher char (named-readtables:find-readtable 'as-string))))
+	  (get-dispatcher char)))
     (if reader
       (funcall reader
 	       stream
