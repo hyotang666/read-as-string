@@ -314,14 +314,14 @@
 
 (requirements-about SET-DISPATCHER :doc-type function
 		    :around (let((read-as-string::*dispatch-macros*
-				   (make-hash-table)))
+				   (make-hash-table :test #'equal)))
 			      (call-body)))
 
 ;;;; Description:
-; Same with CL:SET-DISPATCH-MACRO-CHARACTER.
+; Like CL:SET-DISPATCH-MACRO-CHARACTER, extend readtable with char and fun.
 
 #+syntax
-(SET-DISPATCHER char fun) ; => result
+(SET-DISPATCHER char fun &optional (readtable *readtable*)) ; => result
 
 ;;;; Arguments and Values:
 
@@ -331,6 +331,9 @@
 ; fun := (or function symbol) as (function(stream character (integer 0 *))string)
 ; otherwise error.
 #?(set-dispatcher #\+ "not (or symbol function)") :signals condition
+
+; readtable := readtable, otherwise error.
+#?(set-dispatcher #\+ 'list "not readtable") :signals condition
 
 ; result := (eql t)
 #?(set-dispatcher #\+ 'list) => T
@@ -350,12 +353,15 @@
 ; Like CL:GET-DISPATCH-MACRO-CHARACTER.
 
 #+syntax
-(GET-DISPATCHER char) ; => result
+(GET-DISPATCHER char &optional (readtable *readtable*)) ; => result
 
 ;;;; Arguments and Values:
 
 ; char := character, otherwise condition.
 #?(get-dispatcher "not character") :signals condition
+
+; readtable := readtable, otherwise condition.
+#?(get-dispatcher #\a "not readtable") :signals condition
 
 ; result := (or null (or symbol function))
 #?(get-dispatcher #\') :be-the (or symbol function)
