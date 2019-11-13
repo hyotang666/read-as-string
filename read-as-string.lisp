@@ -202,7 +202,8 @@
 	       set-dispatcher))
 (defun set-dispatcher(char fun &optional (readtable *readtable*))
   #+clisp
-  (check-type fun (or symbol function))
+  (progn (check-type fun (or symbol function))
+	 (check-type readtable readtable))
   (setf (gethash (cons (char-upcase char)
 		       readtable)
 		 *dispatch-macros*)
@@ -210,6 +211,8 @@
   T)
 
 (defun get-dispatcher(char &optional(*readtable* *readtable*))
+  #+clisp
+  (check-type *readtable* readtable)
   (values (gethash (cons (char-upcase char)
 			 *readtable*)
 		   *dispatch-macros*)))
