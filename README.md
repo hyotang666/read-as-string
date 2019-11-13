@@ -1,4 +1,4 @@
-# READ-AS-STRING 1.2.4
+# READ-AS-STRING 2.1.2
 ## What is this?
 Reading S-Expression string from stream.
 
