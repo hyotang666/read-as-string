@@ -210,6 +210,12 @@
 	fun)
   T)
 
+(declaim (ftype (function (character &optional readtable)
+			  (values (or null
+				      symbol
+				      function)
+				  &optional))
+		get-dispatcher))
 (defun get-dispatcher(char &optional(*readtable* *readtable*))
   #+clisp
   (check-type *readtable* readtable)
