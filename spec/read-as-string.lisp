@@ -132,6 +132,10 @@
     (read-as-string))
 => "#(0 1 2 3)"
 
+#?(with-input-from-string(s "#\\|") ; character
+    (read-as-string s))
+=> "#\\|"
+
 #?(with-input-from-string(*standard-input* "\"string\"") ; string
     (read-as-string))
 => "\"string\""

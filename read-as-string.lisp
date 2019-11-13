@@ -222,7 +222,7 @@
   (set-dispatcher #\+ '|#+reader|)
   (set-dispatcher #\- '|#+reader|)
   (set-dispatcher #\* '|#=reader|)
-  (set-dispatcher #\\ '|#=reader|)
+  (set-dispatcher #\\ '|#\\reader|)
   (set-dispatcher #\' '|#=reader|)
   (set-dispatcher #\) (get-dispatch-macro-character #\# #\) (copy-readtable nil)))
   (set-dispatcher #\< '|#<reader|)
@@ -301,3 +301,13 @@
 	    number
 	    (Read-delimited-string #\> stream character))
     (error 'read-unreadable-object :stream stream)))
+
+(defun |#\\reader|(stream character number)
+  (format nil "#~@[~D~]~C~A"
+	  number
+	  character
+	  (let((char
+		 (peek-char nil stream)))
+	    (if(find char '(#\space #\newline #\tab #\page #\return #\linefeed #\\ #\|))
+	      (read-char stream)
+	      (read-token stream)))))
