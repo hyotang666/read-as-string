@@ -183,6 +183,10 @@
                 (read-as-string stream t t t))
         (error 'no-dispatch-function :name char :stream stream)))))
 
+(defun |,reader|(stream character)
+  (declare(ignore stream))
+  (string character))
+
 ;;;; READTABLE
 (named-readtables:defreadtable as-string
   (:macro-char #\" '|"reader|)
@@ -192,6 +196,7 @@
   (:macro-char #\; '|;reader|)
   (:macro-char #\# '|#reader|)
   (:syntax-from :common-lisp #\) #\))
+  (:macro-char #\, '|,reader|)
   )
 
 (defvar *dispatch-macros* (make-hash-table :test #'equal))
