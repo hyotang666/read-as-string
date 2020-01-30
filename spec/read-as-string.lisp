@@ -233,6 +233,10 @@
     (read-as-string))
 :signals read-unreadable-object
 
+#?(with-input-from-string(*standard-input* "stop,") ; Stop to read when terminate char comes.
+    (read-as-string))
+=> "stop"
+
 ; NOTE!
 ; When specify `*MUFFLE-READER-ERROR*` with T,
 ; READ-UNREADABLE-OBJECT is not signaled.
