@@ -62,12 +62,11 @@
 (defun read-as-string
        (&optional stream (eof-error-p t) (eof-value nil) (recursive-p nil))
   (flet ((may-peek ()
-           (let ((return
-                  (peek-char (null recursive-p) nil eof-error-p eof-value
-                             recursive-p)))
-             (if (eq return eof-value)
-                 (return-from read-as-string eof-value)
-                 return))))
+           (handler-case (peek-char (null recursive-p) nil t t recursive-p)
+             (end-of-file (c)
+               (if eof-error-p
+                   (error c)
+                   (return-from read-as-string eof-value))))))
     (let* ((*readtable* (named-readtables:find-readtable 'as-string))
            (*standard-input* (or stream *standard-input*))
            (char (may-peek)))

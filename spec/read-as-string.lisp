@@ -275,6 +275,10 @@
       (read-as-string)))
 => "#Unknown"
 
+#?(with-input-from-string(*standard-input* "hoge")
+    (read-as-string nil nil #\h))
+=> "hoge"
+
 (requirements-about *MUFFLE-READER-ERROR* :doc-type variable)
 
 ;;;; Description:
