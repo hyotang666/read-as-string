@@ -56,7 +56,8 @@
 ;;;; READ-AS-STRING
 
 (declaim
- (ftype (function (&optional (or stream null) boolean t boolean) (or string t))
+ (ftype (function (&optional (or stream null) boolean t boolean)
+         (values (or string t) &optional))
         read-as-string))
 
 (defun read-as-string
