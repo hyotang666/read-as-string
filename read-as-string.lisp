@@ -135,7 +135,7 @@
                     :collect (read-as-string stream t t t)))))
 
 (defun |`reader| (stream character)
-  (format nil "~C~A" character (read-as-string stream)))
+  (format nil "~C~A" character (read-as-string stream t t t)))
 
 (defun |;reader| (stream character)
   (format nil "~C~A" character
