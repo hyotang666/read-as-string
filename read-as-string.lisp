@@ -112,7 +112,7 @@
              stream character)))
 
 (defun |'reader| (stream character)
-  (format nil "~C~A" character (read-as-string stream)))
+  (format nil "~C~A" character (read-as-string stream t t t)))
 
 (defun |paren-reader| (stream character)
   (declare (ignore character))

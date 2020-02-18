@@ -152,6 +152,10 @@
     (read-as-string))
 => "'(foo)"
 
+#?(with-input-from-string(*standard-input* "'  foo") ; Keep white chars.
+    (read-as-string))
+=> "'  foo"
+
 #?(with-input-from-string(*standard-input* "3.14") ; float
     (read-as-string))
 => "3.14"
