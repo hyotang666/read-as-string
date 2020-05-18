@@ -16,9 +16,9 @@ READ-AS-STRING do it.
 
 ## Usage
 ```lisp
-(let((sexp "(CAR (liSt :a 45.))"))
-  (print(read-from-string sexp))
-  (with-input-from-string(s sexp)
+(let ((sexp "(CAR (liSt :a 45.))"))
+  (print (read-from-string sexp))
+  (with-input-from-string (s sexp)
     (print (read-as-string s))))
 (CAR (LIST :A 45))    ; <--- Output of CL:READ-FROM-STRING.
 "(CAR (liSt :a 45.))" ; <--- Output of READ-AS-STRING.
@@ -33,7 +33,7 @@ Eliminate bugs.
 MIT
 
 ### Tested with
-* SBCL/2.0.0
-* CCL/1.11.5
-* ECL/16.1.3
+* SBCL/2.0.2
+* CCL/1.12
+* ECL/20.4.24
 * CLISP/2.49
