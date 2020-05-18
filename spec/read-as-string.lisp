@@ -6,7 +6,7 @@
 
 ;;;; Description:
 ; read s-expression from specified input stream, then construct string.
-#?(with-input-from-string(*standard-input* "foo")
+#?(with-input-from-string (*standard-input* "foo")
     (read-as-string))
 => "foo"
 
@@ -19,42 +19,42 @@
 #?(read-as-string "not (or null stream)") :signals condition
 
 ; When specified NIL, it treated as *standard-input*.
-#?(with-input-from-string(*standard-input* ":example")
+#?(with-input-from-string (*standard-input* ":example")
     (read-as-string nil))
 => ":example"
 
 ; The default is NIL.
-#?(with-input-from-string(*standard-input* ":example")
+#?(with-input-from-string (*standard-input* ":example")
     (read-as-string))
 => ":example"
 
 ; eof-error-p := boolean. specify to signal error when get eof.
 ; The default is T.
-#?(with-input-from-string(s "")
+#?(with-input-from-string (s "")
     (read-as-string s))
 :signals end-of-file
 
-#?(with-input-from-string(s "")
+#?(with-input-from-string (s "")
     (read-as-string s nil))
 => NIL
 ,:test eq
 
 ; eof-value := T, return value when get eof.
 ; The default is nil.
-#?(with-input-from-string(s "")
+#?(with-input-from-string (s "")
     (read-as-string s nil :return-value))
 => :return-value
 
 ; recursive-p := boolean. internal use. 
-#?(with-input-from-string(s "  foo  ")
+#?(with-input-from-string (s "  foo  ")
     (read-as-string s))
 => "foo"
 ,:test string=
-#?(with-input-from-string(s "  foo  ")
+#?(with-input-from-string (s "  foo  ")
     (read-as-string s t t t))
 => "  foo"
 
-#?(with-input-from-string(s "  () ")
+#?(with-input-from-string (s "  () ")
     (read-as-string s t t t))
 => unspecified ; "  ()" or error.
 
@@ -71,215 +71,211 @@
 ;;;; Exceptional-Situations:
 
 ;;;; examples.
-#?(with-input-from-string(*standard-input* "foo") ; symbol
+#?(with-input-from-string (*standard-input* "foo") ; symbol
     (read-as-string))
 => "foo" ; <--- case sensitive.
 
-#?(with-input-from-string(*standard-input* ":foo") ; keyword
+#?(with-input-from-string (*standard-input* ":foo") ; keyword
     (read-as-string))
 => ":foo"
 
-#?(with-input-from-string(*standard-input* "foo:foo") ; package prefixed
+#?(with-input-from-string (*standard-input* "foo:foo") ; package prefixed
     (read-as-string))
 => "foo:foo"
 
-#?(with-input-from-string(*standard-input* "foo::foo") ; internal
+#?(with-input-from-string (*standard-input* "foo::foo") ; internal
     (read-as-string))
 => "foo::foo"
 
-#?(with-input-from-string(*standard-input* "#:foo") ; uninterned
+#?(with-input-from-string (*standard-input* "#:foo") ; uninterned
     (read-as-string))
 => "#:foo"
 
-#?(with-input-from-string(*standard-input* "\\#foo") ; with escaped
+#?(with-input-from-string (*standard-input* "\\#foo") ; with escaped
     (read-as-string))
 => "\\#foo"
 
-#?(with-input-from-string(*standard-input* "|foo|") ; with vertical bar
+#?(with-input-from-string (*standard-input* "|foo|") ; with vertical bar
     (read-as-string))
 => "|foo|"
 
-#?(with-input-from-string(*standard-input* "|a')|") ; valid symbol.
+#?(with-input-from-string (*standard-input* "|a')|") ; valid symbol.
     (read-as-string))
 => "|a')|"
 
-#?(with-input-from-string(*standard-input* "()") ; empty list
+#?(with-input-from-string (*standard-input* "()") ; empty list
     (read-as-string))
 => "()"
 
-#?(with-input-from-string(*standard-input* "(") ; unbalanced
+#?(with-input-from-string (*standard-input* "(") ; unbalanced
     (read-as-string))
 :signals end-of-file
 
-#?(with-input-from-string(*standard-input* "(())") ; nested
+#?(with-input-from-string (*standard-input* "(())") ; nested
     (read-as-string))
 => "(())"
 
-#?(with-input-from-string(*standard-input* (format nil "(~%)")) ; nested
+#?(with-input-from-string (*standard-input* (format nil "(~%)")) ; nested
     (read-as-string))
 => "(
 )"
 
-#?(with-input-from-string(*standard-input* "(foo . bar)") ; dotted
+#?(with-input-from-string (*standard-input* "(foo . bar)") ; dotted
     (read-as-string))
 => "(foo . bar)"
 
-#?(with-input-from-string(*standard-input* "(foo ( bar . bazz))") ; nested
+#?(with-input-from-string (*standard-input* "(foo ( bar . bazz))") ; nested
     (read-as-string))
 => "(foo ( bar . bazz))"
 
-#?(with-input-from-string(*standard-input* "#(0 1 2 3)") ; vector
+#?(with-input-from-string (*standard-input* "#(0 1 2 3)") ; vector
     (read-as-string))
 => "#(0 1 2 3)"
 
-#?(with-input-from-string(s "#\\|") ; character
+#?(with-input-from-string (s "#\\|") ; character
     (read-as-string s))
 => "#\\|"
 
-#?(with-input-from-string(*standard-input* "\"string\"") ; string
+#?(with-input-from-string (*standard-input* "\"string\"") ; string
     (read-as-string))
 => "\"string\""
 
-#?(with-input-from-string(*standard-input* "\"nested \\\"double\\\" quotes\"") ; nested double quotes
+#?(with-input-from-string (*standard-input* "\"nested \\\"double\\\" quotes\"") ; nested double quotes
     (read-as-string))
 => "\"nested \\\"double\\\" quotes\""
 
-#?(with-input-from-string(*standard-input* "'foo") ; quoted symbol
+#?(with-input-from-string (*standard-input* "'foo") ; quoted symbol
     (read-as-string))
 => "'foo"
 
-#?(with-input-from-string(*standard-input* "'(foo)") ; quoted list
+#?(with-input-from-string (*standard-input* "'(foo)") ; quoted list
     (read-as-string))
 => "'(foo)"
 
-#?(with-input-from-string(*standard-input* "'  foo") ; Keep white chars.
+#?(with-input-from-string (*standard-input* "'  foo") ; Keep white chars.
     (read-as-string))
 => "'  foo"
 
-#?(with-input-from-string(*standard-input* "3.14") ; float
+#?(with-input-from-string (*standard-input* "3.14") ; float
     (read-as-string))
 => "3.14"
 
-#?(with-input-from-string(*standard-input* "#5r1234") ; ratio dispatch
+#?(with-input-from-string (*standard-input* "#5r1234") ; ratio dispatch
     (read-as-string))
 => "#5r1234"
 
-#?(with-input-from-string(*standard-input* "#O01234567") ; octal dispatch
+#?(with-input-from-string (*standard-input* "#O01234567") ; octal dispatch
     (read-as-string))
 => "#O01234567"
 
-#?(with-input-from-string(*standard-input* "#P\"hoge/fuga.bar\"") ; pathname
+#?(with-input-from-string (*standard-input* "#P\"hoge/fuga.bar\"") ; pathname
     (read-as-string))
 => "#P\"hoge/fuga.bar\""
 
-#?(with-input-from-string(*standard-input* "`(,foo ,(bar) ,@(bazz) ,.(hoge))") ; backquote
+#?(with-input-from-string (*standard-input* "`(,foo ,(bar) ,@(bazz) ,.(hoge))") ; backquote
     (read-as-string))
 => "`(,foo ,(bar) ,@(bazz) ,.(hoge))"
 
-#?(with-input-from-string(*standard-input* "#1A(1 2 3)") ; array dispatch
+#?(with-input-from-string (*standard-input* "#1A(1 2 3)") ; array dispatch
     (read-as-string))
 => "#1A(1 2 3)"
 
-#?(with-input-from-string(*standard-input* "#S(structure :slot :value)") ; structure
+#?(with-input-from-string (*standard-input* "#S(structure :slot :value)") ; structure
     (read-as-string))
 => "#S(structure :slot :value)"
 
-#?(with-input-from-string(*standard-input* "#+sbcl hoge") ; conditional +
+#?(with-input-from-string (*standard-input* "#+sbcl hoge") ; conditional +
     (read-as-string))
 => "#+sbcl hoge"
 
-#?(with-input-from-string(*standard-input* "#-sbcl hoge") ; conditional -
+#?(with-input-from-string (*standard-input* "#-sbcl hoge") ; conditional -
     (read-as-string))
 => "#-sbcl hoge"
 
-#?(with-input-from-string(*standard-input* "#+(or clisp ecl) hoge") ; compound conditional
+#?(with-input-from-string (*standard-input* "#+(or clisp ecl) hoge") ; compound conditional
     (read-as-string))
 => "#+(or clisp ecl) hoge"
 
-#?(with-input-from-string(*standard-input* "#+unknown (list)")
+#?(with-input-from-string (*standard-input* "#+unknown (list)")
     (read-as-string))
 => "#+unknown (list)"
 
-#?(with-input-from-string(*standard-input* "; comment") ; line comment
+#?(with-input-from-string (*standard-input* "; comment") ; line comment
     (read-as-string))
 => "; comment"
 
-#?(with-input-from-string(*standard-input* (format nil "(; comment in s-expression~%)")) ; line comment is s-expression
+#?(with-input-from-string (*standard-input* (format nil "(; comment in s-expression~%)")) ; line comment is s-expression
     (read-as-string))
 => "(; comment in s-expression
 )"
 
-#?(with-input-from-string(*standard-input* "#|block comment|#") ; block comment
+#?(with-input-from-string (*standard-input* "#|block comment|#") ; block comment
     (read-as-string))
 => "#|block comment|#"
 
-#?(with-input-from-string(*standard-input* "#|nested#|block|#comment|#") ; nested block comment
+#?(with-input-from-string (*standard-input* "#|nested#|block|#comment|#") ; nested block comment
     (read-as-string))
 => "#|nested#|block|#comment|#"
 
-#?(with-input-from-string(*standard-input* "#|unbalanced#|nested comment|#") ; unbalanced nested comment
+#?(with-input-from-string (*standard-input* "#|unbalanced#|nested comment|#") ; unbalanced nested comment
     (read-as-string))
 :signals end-of-file
 
-#?(with-input-from-string(*standard-input* "(#|block comment in s-expression|#)") ; block comment is s-expression
+#?(with-input-from-string (*standard-input* "(#|block comment in s-expression|#)") ; block comment is s-expression
     (read-as-string))
 => "(#|block comment in s-expression|#)"
 
-#?(with-input-from-string(*standard-input* "#C(1 2)") ; complex
+#?(with-input-from-string (*standard-input* "#C(1 2)") ; complex
     (read-as-string))
 => "#C(1 2)"
 
-#?(with-input-from-string(*standard-input* "#B1111") ; binary
+#?(with-input-from-string (*standard-input* "#B1111") ; binary
     (read-as-string))
 => "#B1111"
 
-#?(with-input-from-string(*standard-input* "#<unreadable object>") ; unreadable object
+#?(with-input-from-string (*standard-input* "#<unreadable object>") ; unreadable object
     (read-as-string))
 :signals read-unreadable-object
 
-#?(with-input-from-string(*standard-input* "stop,") ; Stop to read when terminate char comes.
+#?(with-input-from-string (*standard-input* "stop,") ; Stop to read when terminate char comes.
     (read-as-string))
 => "stop"
 
 ; NOTE!
 ; When specify `*MUFFLE-READER-ERROR*` with T,
 ; READ-UNREADABLE-OBJECT is not signaled.
-#?(with-input-from-string(*standard-input* "#<unreadable object>")
-    (let((*muffle-reader-error*
-	   T))
+#?(with-input-from-string (*standard-input* "#<unreadable object>")
+    (let ((*muffle-reader-error* T))
       (read-as-string)))
 => "#<unreadable object>"
 
 ; NOTE!
 ; In such case, returned string may not correct.
-#?(with-input-from-string(*standard-input* "#<FUNCTION > >") ; known bug 1
-    (let((*muffle-reader-error*
-	   T))
+#?(with-input-from-string (*standard-input* "#<FUNCTION > >") ; known bug 1
+    (let ((*muffle-reader-error* T))
       (values (read-as-string)
 	      (read-as-string))))
 :values ("#<FUNCTION >" ">")
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "#<FUNCTION \\> >")
-    (let((*muffle-reader-error*
-	   T))
+#?(with-input-from-string (*standard-input* "#<FUNCTION \\> >")
+    (let ((*muffle-reader-error* T))
       (read-as-string)))
 => "#<FUNCTION \\> >"
 
-#?(with-input-from-string(*standard-input* "#Unknown Dispatcher") ; Unknown dispatch macro char
+#?(with-input-from-string (*standard-input* "#Unknown Dispatcher") ; Unknown dispatch macro char
     (read-as-string))
 :signals no-dispatch-function
 
 ; NOTE!
 ; When specify `*MUFFLE-READER-ERROR*` with T,
 ; NO-DISPATCH-FUNCTION  is not signaled.
-#?(with-input-from-string(*standard-input* "#Unknown Dispatcher")
-    (let((*muffle-reader-error*
-	   T))
+#?(with-input-from-string (*standard-input* "#Unknown Dispatcher")
+    (let ((*muffle-reader-error* T))
       (read-as-string)))
 => "#Unknown"
 
-#?(with-input-from-string(*standard-input* "hoge")
+#?(with-input-from-string (*standard-input* "hoge")
     (read-as-string nil nil #\h))
 => "hoge"
 
@@ -329,7 +325,7 @@
 ;;;; Notes:
 
 (requirements-about SET-DISPATCHER :doc-type function
-		    :around (let((read-as-string::*dispatch-macros*
+		    :around (let ((read-as-string::*dispatch-macros*
 				   (make-hash-table :test #'equal)))
 			      (call-body)))
 
@@ -344,7 +340,7 @@
 ; char := character otherwise error.
 #?(set-dispatcher "not-character" '#:dummy) :signals condition
 
-; fun := (or function symbol) as (function(stream character (integer 0 *))string)
+; fun := (or function symbol) as (function (stream character (integer 0 *)) string)
 ; otherwise error.
 #?(set-dispatcher #\+ "not (or symbol function)") :signals condition
 
@@ -403,57 +399,57 @@
 #+syntax
 (READ-TOKEN &optional stream) ; => result
 
-#?(with-input-from-string(*standard-input* "token")
+#?(with-input-from-string (*standard-input* "token")
     (read-token))
 => "token"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "token\\single-escaped")
+#?(with-input-from-string (*standard-input* "token\\single-escaped")
     (read-token))
 => "token\\single-escaped"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "|multiple escaped|")
+#?(with-input-from-string (*standard-input* "|multiple escaped|")
     (read-token))
 => "|multiple escaped|"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "token|multiple escaped|")
+#?(with-input-from-string (*standard-input* "token|multiple escaped|")
     (read-token))
 => "token|multiple escaped|"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "|multiple escaped|token")
+#?(with-input-from-string (*standard-input* "|multiple escaped|token")
     (read-token))
 => "|multiple escaped|token"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "token|multiple escaped|token")
+#?(with-input-from-string (*standard-input* "token|multiple escaped|token")
     (read-token))
 => "token|multiple escaped|token"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "|e.g. ' never treated as reader macro|")
+#?(with-input-from-string (*standard-input* "|e.g. ' never treated as reader macro|")
     (read-token))
 => "|e.g. ' never treated as reader macro|"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "|escaped|not-escaped|escaped|")
+#?(with-input-from-string (*standard-input* "|escaped|not-escaped|escaped|")
     (read-token))
 => "|escaped|not-escaped|escaped|"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "012")
+#?(with-input-from-string (*standard-input* "012")
     (read-token))
 => "012"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "012.")
+#?(with-input-from-string (*standard-input* "012.")
     (read-token))
 => "012."
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "012.345")
+#?(with-input-from-string (*standard-input* "012.345")
     (read-token))
 => "012.345"
 ,:test equal
@@ -464,7 +460,7 @@
 #?(read-token "not stream") :signals condition
 
 ; When specified nil, it represents *standard-input*.
-#?(with-input-from-string(*standard-input* "example")
+#?(with-input-from-string (*standard-input* "example")
     (read-token nil))
 => "example"
 ,:test equal
@@ -479,34 +475,34 @@
 ;;;; Notes:
 ; When whitespaces or terminal character comes first,
 ; empty string is returned.
-#?(with-input-from-string(*standard-input* "")
+#?(with-input-from-string (*standard-input* "")
     (read-token))
 => ""
 ,:test equal
 
 ; Whitespaces or terminal characters are never consumed.
-#?(with-input-from-string(*standard-input* " ")
+#?(with-input-from-string (*standard-input* " ")
     (values (read-token)
 	    (read-char)))
 :values ("" #\space)
 
-#?(with-input-from-string(*standard-input* "'<--- terminal character")
+#?(with-input-from-string (*standard-input* "'<--- terminal character")
     (read-token))
 => ""
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "a#<---Non-terminal")
+#?(with-input-from-string (*standard-input* "a#<---Non-terminal")
     (read-token))
 => "a#<---Non-terminal"
 ,:test equal
 
 ; Never check notation validity.
-#?(with-input-from-string(*standard-input* "non-existant-package::symbol")
+#?(with-input-from-string (*standard-input* "non-existant-package::symbol")
     (read-token))
 => "non-existant-package::symbol"
 ,:test equal
 
-#?(with-input-from-string(*standard-input* "invalid:::colon")
+#?(with-input-from-string (*standard-input* "invalid:::colon")
     (read-token))
 => "invalid:::colon"
 ,:test equal
