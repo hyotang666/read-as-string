@@ -135,6 +135,9 @@
 #?(with-input-from-string (s "#\\|") ; character
     (read-as-string s))
 => "#\\|"
+#?(with-input-from-string (s "#\\;")
+    (read-as-string s))
+=> "#\\;"
 
 #?(with-input-from-string (*standard-input* "\"string\"") ; string
     (read-as-string))

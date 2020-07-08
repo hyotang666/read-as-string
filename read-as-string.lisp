@@ -269,10 +269,5 @@
       (error 'read-unreadable-object :stream stream)))
 
 (defun |#\\reader| (stream character number)
-  (format nil "#~@[~D~]~C~A" number character
-          (let ((char (peek-char nil stream)))
-            (if (find char
-                      '(#\Space #\Newline #\Tab #\Page #\Return #\Newline #\\
-                        #\|))
-                (read-char stream)
-                (read-token stream)))))
+  (unread-char character stream)
+  (format nil "#~@[~D~]~A" number (read-token stream)))
