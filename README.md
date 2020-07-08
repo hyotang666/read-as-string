@@ -1,4 +1,4 @@
-# READ-AS-STRING 2.1.3
+# READ-AS-STRING 2.2.6
 ## What is this?
 Reading S-Expression string from stream.
 
@@ -33,7 +33,7 @@ Eliminate bugs.
 MIT
 
 ### Tested with
-* SBCL/2.0.2
+* SBCL/2.0.5
 * CCL/1.12
 * ECL/20.4.24
 * CLISP/2.49
