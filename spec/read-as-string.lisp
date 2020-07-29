@@ -79,6 +79,10 @@
     (read-as-string))
 => ":foo"
 
+#?(with-input-from-string (*standard-input* ":#") ; Corner case.
+    (read-as-string))
+=> ":#"
+
 #?(with-input-from-string (*standard-input* "foo:foo") ; package prefixed
     (read-as-string))
 => "foo:foo"

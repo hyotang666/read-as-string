@@ -166,7 +166,7 @@
   (:macro-char #\( '|paren-reader|)
   (:macro-char #\` '|`reader|)
   (:macro-char #\; '|;reader|)
-  (:macro-char #\# '|#reader|)
+  (:macro-char #\# '|#reader| :non-terminating)
   (:syntax-from :common-lisp #\) #\))
   (:macro-char #\, '|,reader|))
 
