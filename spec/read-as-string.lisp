@@ -282,6 +282,11 @@
       (read-as-string)))
 => "#Unknown"
 
+#?(with-input-from-string (*standard-input* "#t")
+    (let ((*muffle-reader-error* T))
+      (read-as-string)))
+=> "#t"
+
 #?(with-input-from-string (*standard-input* "hoge")
     (read-as-string nil nil #\h))
 => "hoge"

@@ -150,7 +150,7 @@
     (if reader
         (funcall reader stream (read-char stream) digit)
         (if *muffle-reader-error*
-            (format nil "~C~@[~D~]~C~A" character digit (read-char stream)
+            (format nil "~C~@[~D~]~A" character digit
                     (read-as-string stream t t t))
             (error 'no-dispatch-function :name char :stream stream)))))
 
