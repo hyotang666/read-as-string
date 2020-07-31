@@ -150,8 +150,13 @@
     (if reader
         (funcall reader stream (read-char stream) digit)
         (if *muffle-reader-error*
-            (format nil "~C~@[~D~]~A" character digit
-                    (read-as-string stream t t t))
+            (format nil "~C~@[~D~]~C~@[~A~]" character digit (read-char stream)
+                    (when (let ((next-char (peek-char nil stream nil nil)))
+                            (and next-char
+                                 (not
+                                   (or (whitecharp next-char)
+                                       (char= #\) next-char)))))
+                      (read-as-string stream t t t)))
             (error 'no-dispatch-function :name char :stream stream)))))
 
 (defun |,reader| (stream character)

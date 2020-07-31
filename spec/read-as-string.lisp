@@ -287,6 +287,19 @@
       (read-as-string)))
 => "#t"
 
+; NOTE: Known issue.
+; When specify `*MUFFLE-READER-ERROR*` with t, and next char is white-space or #\),
+; treat dispatcher as null dispatcher.
+#?(with-input-from-string (*standard-input* "#T()")
+    (let ((*muffle-reader-error* T))
+      (read-as-string)))
+=> "#T()"
+
+#?(with-input-from-string (*standard-input* "#T ()")
+    (let ((*muffle-reader-error* T))
+      (read-as-string)))
+=> "#T"
+
 #?(with-input-from-string (*standard-input* "hoge")
     (read-as-string nil nil #\h))
 => "hoge"
