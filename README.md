@@ -1,4 +1,4 @@
-# READ-AS-STRING 2.2.6
+# READ-AS-STRING 2.2.9
 ## What is this?
 Reading S-Expression string from stream.
 
@@ -25,6 +25,25 @@ READ-AS-STRING do it.
 ```
 Usually `(read-from-string (read-as-string stream))` is same with `(read stream)`.
 
+## Exception
+### Comment
+Read-as-string does not discard comment.
+
+```lisp
+(with-input-from-string (s "; line comment")
+  (read-as-string s))
+"; line comment"
+```
+
+### Read time condition.
+Read-as-string does not discard any read time condition.
+
+```lisp
+(with-input-from-string (s "#+() test")
+  (read-as-string s))
+"#+() test"
+```
+
 ## From developer
 
 ### Product's goal
@@ -33,7 +52,7 @@ Eliminate bugs.
 MIT
 
 ### Tested with
-* SBCL/2.0.5
+* SBCL/2.0.7
 * CCL/1.12
 * ECL/20.4.24
 * CLISP/2.49
