@@ -27,7 +27,8 @@
 
 ;;;; CONDITIONS
 
-(define-condition no-dispatch-function (reader-error cell-error) ()
+(define-condition no-dispatch-function (reader-error cell-error)
+  ()
   (:report
    (lambda (condition stream)
      (format stream "No dispatch function defined for ~S"
@@ -37,7 +38,8 @@
            (format stream "~%File: ~S" (pathname in))
            (format stream "~%Stream: ~S" in))))))
 
-(define-condition read-unreadable-object (reader-error) ()
+(define-condition read-unreadable-object (reader-error)
+  ()
   (:report
    (lambda (condition stream)
      (let ((s (stream-error-stream condition)))
@@ -254,12 +256,12 @@
                             (let ((digit
                                    (read-string-till
                                      (complement #'digit-char-p)))
-                                  (char (peek-char nil stream)))
-                              (if (char= #\| char) ; nested comment with digit.
+                                  (c (peek-char nil stream)))
+                              (if (char= #\| c) ; nested comment with digit.
                                   (acc
                                    (|#\|reader| stream (read-char stream)
                                                 digit))
-                                  (acc digit))))
+                                  (progn (acc char) (acc digit)))))
                            (otherwise (acc char))))
                         (otherwise (acc char)))))))
 

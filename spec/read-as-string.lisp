@@ -232,6 +232,10 @@
     (read-as-string))
 => "(#|block comment in s-expression|#)"
 
+#?(with-input-from-string (*standard-input* "#| '#0=(1 2 3 . #0#) |#") ; Readtime refer in block comment.
+    (read-as-string))
+=> "#| '#0=(1 2 3 . #0#) |#"
+
 #?(with-input-from-string (*standard-input* "#C(1 2)") ; complex
     (read-as-string))
 => "#C(1 2)"
