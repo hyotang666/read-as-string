@@ -239,31 +239,32 @@
   (format nil "#~@[~D~]~C~A" number character (read-as-string stream t t t)))
 
 (defun |#\|reader| (stream character number)
-  (format nil "#~@[~D~]~C~{~A~}" number character
-          (uiop:while-collecting (acc)
-            (loop :for char = (read-char stream)
-                  :do (case char
-                        (#\|
-                         (acc char)
-                         (when (char= #\# (peek-char nil stream))
-                           (acc (read-char stream))
-                           (loop-finish)))
-                        (#\#
-                         (case (peek-char nil stream)
-                           (#\| ; nested comment
-                            (acc (|#\|reader| stream (read-char stream) nil)))
-                           ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
-                            (let ((digit
-                                   (read-string-till
-                                     (complement #'digit-char-p)))
-                                  (c (peek-char nil stream)))
-                              (if (char= #\| c) ; nested comment with digit.
-                                  (acc
-                                   (|#\|reader| stream (read-char stream)
-                                                digit))
-                                  (progn (acc char) (acc digit)))))
-                           (otherwise (acc char))))
-                        (otherwise (acc char)))))))
+  (with-output-to-string (out)
+    (funcall (formatter "#~@[~D~]~C") out number character)
+    (loop :for char = (read-char stream)
+          :do (case char
+                (#\|
+                 (write-char char out)
+                 (when (char= #\# (peek-char nil stream))
+                   (write-char (read-char stream) out)
+                   (loop-finish)))
+                (#\#
+                 (case (peek-char nil stream)
+                   (#\| ; nested comment
+                    (write-string (|#\|reader| stream (read-char stream) nil)
+                                  out))
+                   ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
+                    (let ((digit
+                           (read-string-till (complement #'digit-char-p)))
+                          (c (peek-char nil stream)))
+                      (if (char= #\| c) ; nested comment with digit.
+                          (write-string
+                            (|#\|reader| stream (read-char stream) digit) out)
+                          (progn
+                           (write-char char out)
+                           (write-string digit out)))))
+                   (otherwise (write-char char out))))
+                (otherwise (write-char char out))))))
 
 (defun |#+reader| (stream character number)
   (format nil "#~@[~D~]~C~A~A" number character (read-as-string stream t t t)
