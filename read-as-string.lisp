@@ -21,6 +21,8 @@
 
 (pushnew :read-as-string *features*)
 
+(declaim (optimize speed))
+
 ;;;; VARIABLES
 
 (defvar *muffle-reader-error* nil)
@@ -111,8 +113,10 @@
 
 (defun |"reader| (stream character)
   (prin1-to-string
-    (funcall (load-time-value (get-macro-character #\" (copy-readtable nil)) t)
-             stream character)))
+    (funcall
+      (load-time-value
+       (coerce (get-macro-character #\" (copy-readtable nil)) 'function) t)
+      stream character)))
 
 (defun |'reader| (stream character)
   (format nil "~C~A" character (read-as-string stream t t t)))
@@ -150,7 +154,7 @@
          (char (peek-char nil stream))
          (reader (get-dispatcher char)))
     (if reader
-        (funcall reader stream (read-char stream) digit)
+        (funcall (coerce reader 'function) stream (read-char stream) digit)
         (if *muffle-reader-error*
             (format nil "~C~@[~D~]~C~@[~A~]" character digit (read-char stream)
                     (when (let ((next-char (peek-char nil stream nil nil)))
@@ -162,20 +166,23 @@
             (error 'no-dispatch-function :name char :stream stream)))))
 
 (defun |,reader| (stream character)
-  (declare (ignore stream))
+  (declare (ignore stream)
+           (type character character))
   (string character))
 
 ;;;; READTABLE
 
-(named-readtables:defreadtable as-string
-  (:macro-char #\" '|"reader|)
-  (:macro-char #\' '|'reader|)
-  (:macro-char #\( '|paren-reader|)
-  (:macro-char #\` '|`reader|)
-  (:macro-char #\; '|;reader|)
-  (:macro-char #\# '|#reader| :non-terminating)
-  (:syntax-from :common-lisp #\) #\))
-  (:macro-char #\, '|,reader|))
+(locally
+ (declare (optimize (speed 1)))
+ (named-readtables:defreadtable as-string
+   (:macro-char #\" '|"reader|)
+   (:macro-char #\' '|'reader|)
+   (:macro-char #\( '|paren-reader|)
+   (:macro-char #\` '|`reader|)
+   (:macro-char #\; '|;reader|)
+   (:macro-char #\# '|#reader| :non-terminating)
+   (:syntax-from :common-lisp #\) #\))
+   (:macro-char #\, '|,reader|)))
 
 (defvar *dispatch-macros* (make-hash-table :test #'equal))
 
@@ -185,6 +192,7 @@
         set-dispatcher))
 
 (defun set-dispatcher (char fun &optional (readtable *readtable*))
+  (declare (optimize (speed 1)))
   #+clisp
   (progn
    (check-type fun (or symbol function))
@@ -198,6 +206,7 @@
         get-dispatcher))
 
 (defun get-dispatcher (char &optional (*readtable* *readtable*))
+  (declare (optimize (speed 1)))
   #+clisp
   (check-type *readtable* readtable)
   (values (gethash (cons (char-upcase char) *readtable*) *dispatch-macros*)))
