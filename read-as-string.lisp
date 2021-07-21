@@ -111,6 +111,16 @@
 
 ;;; MACRO CHARS
 
+(declaim
+ (ftype (function (stream character) (values simple-string &optional))
+        |"reader|
+        |'reader|
+        |paren-reader|
+        |`reader|
+        |;reader|
+        |#reader|
+        |,reader|))
+
 (defun |"reader| (stream character)
   (prin1-to-string
     (funcall
@@ -144,8 +154,8 @@
   (format nil "~C~A" character (read-as-string stream t t t)))
 
 (defun |;reader| (stream character)
-  (format nil "~C~A" character
-          (read-string-till (char-pred #\Newline) stream t t t t)))
+  (concatenate 'string (string character)
+               (read-string-till (char-pred #\Newline) stream t t t t)))
 
 (defun |#reader| (stream character)
   (let* ((digit
