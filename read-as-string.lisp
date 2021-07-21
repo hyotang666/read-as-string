@@ -93,7 +93,7 @@
 
 (defun read-token
        (&optional stream &aux (*standard-input* (or stream *standard-input*)))
-  (string-concat
+  (with-output-to-string (*standard-output*)
     (loop :for char := (peek-char nil nil nil nil)
           :while char
           :if (or (whitecharp char)
@@ -102,12 +102,12 @@
                     (and macro (not non-terminal-p))))
             :do (loop-finish)
           :else :if (char= #\\ char)
-            :collect (read-char)
-            :and :collect (read-char)
+            :do (write-char (read-char))
+                (write-char (read-char))
           :else :if (char= #\| char)
-            :collect (read-delimited-string (read-char))
+            :do (write-string (read-delimited-string (read-char)))
           :else
-            :collect (read-char))))
+            :do (write-char (read-char)))))
 
 ;;; MACRO CHARS
 
