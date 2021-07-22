@@ -127,10 +127,11 @@
         |#reader|
         |,reader|))
 
-(defun |"reader| (stream character)
-  (write-char character)
-  (do-stream-till (c (char-pred #\") stream t t)
-    (write-char c)))
+(let ((pred (char-pred #\")))
+  (defun |"reader| (stream character)
+    (write-char character)
+    (do-stream-till (c pred stream t t)
+      (write-char c))))
 
 (defun |'reader| (stream character)
   (write-char character)
@@ -315,16 +316,17 @@
   (%read-as-string stream t t t)
   (%read-as-string stream t t t))
 
-(defun |#<reader| (stream character number)
-  (if *muffle-reader-error*
-      (progn
-       (write-char #\#)
-       (when number
-         (write number))
-       (write-char character)
-       (do-stream-till (c (char-pred #\>) nil t t)
-         (write-char c)))
-      (error 'read-unreadable-object :stream stream)))
+(let ((pred (char-pred #\>)))
+  (defun |#<reader| (stream character number)
+    (if *muffle-reader-error*
+        (progn
+         (write-char #\#)
+         (when number
+           (write number))
+         (write-char character)
+         (do-stream-till (c pred nil t t)
+           (write-char c)))
+        (error 'read-unreadable-object :stream stream))))
 
 (defun |#\\reader| (stream character number)
   (unread-char character stream)
