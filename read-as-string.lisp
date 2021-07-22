@@ -135,23 +135,24 @@
   (format nil "~C~A" character (read-as-string stream t t t)))
 
 (defun |paren-reader| (stream character)
-  (declare (ignore character))
   (let ((*print-pretty*)) ; For CLISP.
-    (format nil "(~{~A~}"
-            (loop :for char = (peek-char nil stream)
-                  ;; end check.
-                  :if (char= #\) char)
-                    :collect (read-char stream)
-                    :and :do (loop-finish)
-                  ;; dotted list check.
-                  :else :if (char= #\. char)
-                    :collect (read-char stream)
-                  ;; Whitechar check.
-                  :else :if (whitecharp char)
-                    :collect (read-char stream)
-                  ;; The default.
-                  :else
-                    :collect (read-as-string stream t t t)))))
+    (with-output-to-string (*standard-output*)
+      (write-char character)
+      (loop :for char = (read-char stream)
+            ;; end check
+            :if (char= #\) char)
+              :do (write-char char)
+                  (loop-finish)
+            ;; dotted list check.
+            :else :if (char= #\. char)
+              :do (write-char char)
+            ;; whitechar check.
+            :else :if (whitecharp char)
+              :do (write-char char)
+            ;; the default.
+            :else
+              :do (unread-char char)
+                  (write-string (read-as-string stream t t t))))))
 
 (defun |`reader| (stream character)
   (format nil "~C~A" character (read-as-string stream t t t)))
