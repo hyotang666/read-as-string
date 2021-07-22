@@ -234,14 +234,14 @@
          (values (or null symbol function) &optional))
         get-dispatcher))
 
-(let ((cons (cons nil nil)))
-  (defun get-dispatcher (char &optional (*readtable* *readtable*))
-    (declare (optimize (speed 1)))
-    #+clisp
-    (check-type *readtable* readtable)
-    (setf (car cons) (char-upcase char)
-          (cdr cons) (named-readtables:readtable-name *readtable*))
-    (values (gethash cons *dispatch-macros*))))
+(defun get-dispatcher (char &optional (*readtable* *readtable*))
+  (declare (optimize (speed 1)))
+  #+clisp
+  (check-type *readtable* readtable)
+  (values (gethash
+            (cons (char-upcase char)
+                  (named-readtables:readtable-name *readtable*))
+            *dispatch-macros*)))
 
 (let ((*readtable* (named-readtables:find-readtable 'as-string)))
   (set-dispatcher #\# '|##reader|)
