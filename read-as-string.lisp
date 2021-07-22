@@ -50,10 +50,6 @@
            (format stream "File: ~S" (pathname s))
            (format stream "Stream: ~S" s))))))
 
-(declaim
- (ftype (function (character) (values (or null character) &optional))
-        whitecharp))
-
 (setf (symbol-function 'whitecharp)
         (delimiter '(#\Space #\Newline #\Tab #\Page #\Return #\Newline)))
 
@@ -66,26 +62,29 @@
 
 (defun read-as-string
        (&optional stream (eof-error-p t) (eof-value nil) (recursive-p nil))
-  (flet ((may-peek ()
-           (handler-case (peek-char (null recursive-p) nil t t recursive-p)
-             (end-of-file (c)
-               (if eof-error-p
-                   (error c)
-                   (return-from read-as-string eof-value))))))
-    (let* ((*readtable* (named-readtables:find-readtable 'as-string))
-           (*standard-input* (or stream *standard-input*))
-           (char (may-peek)))
-      (multiple-value-call #'concatenate
-        'string
-        (if recursive-p
-            (read-string-till (lambda (c) (not (whitecharp c))))
-            "")
-        (if (get-macro-character
-              (if recursive-p
-                  (may-peek)
-                  char))
-            (read *standard-input* eof-error-p eof-value recursive-p)
-            (read-token))))))
+  (let* ((*readtable* (named-readtables:find-readtable 'as-string))
+         (*standard-input* (or stream *standard-input*)))
+    (handler-case
+        (with-output-to-string (*standard-output*)
+          (%read-as-string stream eof-error-p eof-value recursive-p))
+      (end-of-file (c)
+        (if eof-error-p
+            (error c)
+            eof-value)))))
+
+(defun %read-as-string
+       (&optional stream (eof-error-p t) (eof-value nil) (recursive-p nil))
+  (let* ((*standard-input* (or stream *standard-input*))
+         (char (peek-char (null recursive-p) nil t t recursive-p)))
+    (when recursive-p
+      (do-stream-till (c (lambda (c) (not (whitecharp c))))
+        (write-char c)))
+    (if (get-macro-character
+          (if recursive-p
+              (peek-char (null recursive-p) nil t t recursive-p)
+              char))
+        (read *standard-input* eof-error-p eof-value recursive-p)
+        (%read-token))))
 
 (declaim
  (ftype (function (&optional (or stream null)) (values string &optional))
@@ -93,7 +92,10 @@
 
 (defun read-token
        (&optional stream &aux (*standard-input* (or stream *standard-input*)))
-  (with-output-to-string (*standard-output*)
+  (with-output-to-string (*standard-output*) (%read-token stream)))
+
+(defun %read-token (&optional stream)
+  (let ((*standard-input* (or stream *standard-input*)))
     (loop :for char := (read-char nil nil nil nil)
           :while char
           :if (or (whitecharp char)
@@ -107,7 +109,7 @@
                 (write-char (read-char))
           :else :if (char= #\| char)
             :do (write-char char)
-                (do-stream-till (c (lambda (c) (char= #\| c)) nil t t)
+                (do-stream-till (c (char-pred #\|) nil t t)
                   (write-char c))
           :else
             :do (write-char char))))
@@ -115,7 +117,7 @@
 ;;; MACRO CHARS
 
 (declaim
- (ftype (function (stream character) (values simple-string &optional))
+ (ftype (function (stream character) (values null &optional))
         |"reader|
         |'reader|
         |paren-reader|
@@ -125,41 +127,46 @@
         |,reader|))
 
 (defun |"reader| (stream character)
-  (prin1-to-string
-    (funcall
-      (load-time-value
-       (coerce (get-macro-character #\" (copy-readtable nil)) 'function) t)
-      stream character)))
+  (funcall (formatter "~S") *standard-output*
+           (funcall
+             (load-time-value
+              (coerce (get-macro-character #\" (copy-readtable nil)) 'function)
+              t)
+             stream character)))
 
 (defun |'reader| (stream character)
-  (format nil "~C~A" character (read-as-string stream t t t)))
+  (write-char character)
+  (%read-as-string stream t t t))
 
 (defun |paren-reader| (stream character)
   (let ((*print-pretty*)) ; For CLISP.
-    (with-output-to-string (*standard-output*)
-      (write-char character)
-      (loop :for char = (read-char stream)
-            ;; end check
-            :if (char= #\) char)
-              :do (write-char char)
-                  (loop-finish)
-            ;; dotted list check.
-            :else :if (char= #\. char)
-              :do (write-char char)
-            ;; whitechar check.
-            :else :if (whitecharp char)
-              :do (write-char char)
-            ;; the default.
-            :else
-              :do (unread-char char)
-                  (write-string (read-as-string stream t t t))))))
+    (write-char character)
+    (loop :for char = (read-char stream)
+          ;; end check
+          :if (char= #\) char)
+            :do (write-char char)
+                (loop-finish)
+          ;; dotted list check.
+          :else :if (char= #\. char)
+            :do (write-char char)
+          ;; whitechar check.
+          :else :if (whitecharp char)
+            :do (write-char char)
+          ;; the default.
+          :else
+            :do (unread-char char)
+                (%read-as-string stream t t t))))
 
 (defun |`reader| (stream character)
-  (format nil "~C~A" character (read-as-string stream t t t)))
+  (write-char character)
+  (%read-as-string stream t t t))
 
 (defun |;reader| (stream character)
-  (concatenate 'string (string character)
-               (read-string-till (char-pred #\Newline) stream t t t t)))
+  (write-char character)
+  (handler-case
+      (do-stream-till (c (char-pred #\Newline) stream t t)
+        (write-char c))
+    (end-of-file ())))
 
 (defun |#reader| (stream character)
   (let* ((digit
@@ -171,19 +178,23 @@
     (if reader
         (funcall (coerce reader 'function) stream (read-char stream) digit)
         (if *muffle-reader-error*
-            (format nil "~C~@[~D~]~C~@[~A~]" character digit (read-char stream)
-                    (when (let ((next-char (peek-char nil stream nil nil)))
-                            (and next-char
-                                 (not
-                                   (or (whitecharp next-char)
-                                       (char= #\) next-char)))))
-                      (read-as-string stream t t t)))
+            (progn
+             (write-char character)
+             (when digit
+               (write digit))
+             (write-char (read-char stream))
+             (when (let ((next-char (peek-char nil stream nil nil)))
+                     (and next-char
+                          (not
+                            (or (whitecharp next-char)
+                                (char= #\) next-char)))))
+               (%read-as-string stream t t t)))
             (error 'no-dispatch-function :name char :stream stream)))))
 
 (defun |,reader| (stream character)
-  (declare (ignore stream)
-           (type character character))
-  (string character))
+  (declare (ignore stream))
+  (write-char character)
+  nil)
 
 ;;;; READTABLE
 
@@ -254,53 +265,71 @@
 
 (defun |##reader| (stream character number)
   (declare (ignore stream))
-  (format nil "#~@[~D~]~C" number character))
+  (write-char #\#)
+  (when number
+    (write number))
+  (write-char character)
+  nil)
 
 (defun |#paren-reader| (stream character number)
-  (format nil "#~@[~D~]~A" number (|paren-reader| stream character)))
+  (write-char #\#)
+  (when number
+    (write number))
+  (|paren-reader| stream character))
 
 (defun |#=reader| (stream character number)
-  (format nil "#~@[~D~]~C~A" number character (read-as-string stream t t t)))
+  (write-char #\#)
+  (when number
+    (write number))
+  (write-char character)
+  (%read-as-string stream t t t))
 
 (defun |#\|reader| (stream character number)
-  (with-output-to-string (out)
-    (funcall (formatter "#~@[~D~]~C") out number character)
-    (loop :for char = (read-char stream)
-          :do (case char
-                (#\|
-                 (write-char char out)
-                 (when (char= #\# (peek-char nil stream))
-                   (write-char (read-char stream) out)
-                   (loop-finish)))
-                (#\#
-                 (case (peek-char nil stream)
-                   (#\| ; nested comment
-                    (write-string (|#\|reader| stream (read-char stream) nil)
-                                  out))
-                   ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
-                    (let ((digit
-                           (read-string-till
-                             (lambda (c) (not (digit-char-p c)))))
-                          (c (peek-char nil stream)))
-                      (if (char= #\| c) ; nested comment with digit.
-                          (write-string
-                            (|#\|reader| stream (read-char stream) digit) out)
-                          (progn
-                           (write-char char out)
-                           (write-string digit out)))))
-                   (otherwise (write-char char out))))
-                (otherwise (write-char char out))))))
+  (funcall (formatter "#~@[~D~]~C") *standard-output* number character)
+  (loop :for char = (read-char stream)
+        :do (case char
+              (#\|
+               (write-char char)
+               (when (char= #\# (peek-char nil stream))
+                 (write-char (read-char stream))
+                 (loop-finish)))
+              (#\#
+               (case (peek-char nil stream)
+                 (#\| ; nested comment
+                  (|#\|reader| stream (read-char stream) nil))
+                 ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
+                  (let ((digit
+                         (read-string-till
+                           (lambda (c) (not (digit-char-p c)))))
+                        (c (peek-char nil stream)))
+                    (if (char= #\| c) ; nested comment with digit.
+                        (|#\|reader| stream (read-char stream) digit)
+                        (progn (write-char char) (write-string digit)))))
+                 (otherwise (write-char char))))
+              (otherwise (write-char char)))))
 
 (defun |#+reader| (stream character number)
-  (format nil "#~@[~D~]~C~A~A" number character (read-as-string stream t t t)
-          (read-as-string stream t t t)))
+  (write-char #\#)
+  (when number
+    (write number))
+  (write-char character)
+  (%read-as-string stream t t t)
+  (%read-as-string stream t t t))
 
 (defun |#<reader| (stream character number)
   (if *muffle-reader-error*
-      (format nil "#~@[~D~]~A" number
-              (read-delimited-string #\> stream character))
+      (progn
+       (write-char #\#)
+       (when number
+         (write number))
+       (write-char character)
+       (do-stream-till (c (char-pred #\>) nil t t)
+         (write-char c)))
       (error 'read-unreadable-object :stream stream)))
 
 (defun |#\\reader| (stream character number)
   (unread-char character stream)
-  (format nil "#~@[~D~]~A" number (read-token stream)))
+  (write-char #\#)
+  (when number
+    (write number))
+  (%read-token stream))
