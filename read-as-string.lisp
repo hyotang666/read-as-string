@@ -94,25 +94,26 @@
        (&optional stream &aux (*standard-input* (or stream *standard-input*)))
   (with-output-to-string (*standard-output*) (%read-token stream)))
 
-(defun %read-token (&optional stream)
-  (let ((*standard-input* (or stream *standard-input*)))
-    (loop :for char := (read-char nil nil nil nil)
-          :while char
-          :if (or (whitecharp char)
-                  (multiple-value-bind (macro non-terminal-p)
-                      (get-macro-character char)
-                    (and macro (not non-terminal-p))))
-            :do (unread-char char)
-                (loop-finish)
-          :else :if (char= #\\ char)
-            :do (write-char char)
-                (write-char (read-char))
-          :else :if (char= #\| char)
-            :do (write-char char)
-                (do-stream-till (c (char-pred #\|) nil t t)
-                  (write-char c))
-          :else
-            :do (write-char char))))
+(let ((pred (char-pred #\|)))
+  (defun %read-token (&optional stream)
+    (let ((*standard-input* (or stream *standard-input*)))
+      (loop :for char := (read-char nil nil nil nil)
+            :while char
+            :if (or (whitecharp char)
+                    (multiple-value-bind (macro non-terminal-p)
+                        (get-macro-character char)
+                      (and macro (not non-terminal-p))))
+              :do (unread-char char)
+                  (loop-finish)
+            :else :if (char= #\\ char)
+              :do (write-char char)
+                  (write-char (read-char))
+            :else :if (char= #\| char)
+              :do (write-char char)
+                  (do-stream-till (c pred nil t t)
+                    (write-char c))
+            :else
+              :do (write-char char)))))
 
 ;;; MACRO CHARS
 
