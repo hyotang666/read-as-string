@@ -78,7 +78,7 @@
       (multiple-value-call #'concatenate
         'string
         (if recursive-p
-            (read-string-till (complement #'whitecharp))
+            (read-string-till (lambda (c) (not (whitecharp c))))
             "")
         (if (get-macro-character
               (if recursive-p
@@ -106,7 +106,9 @@
             :do (write-char char)
                 (write-char (read-char))
           :else :if (char= #\| char)
-            :do (write-string (read-delimited-string char))
+            :do (write-char char)
+                (do-stream-till (c (lambda (c) (char= #\| c)) nil t t)
+                  (write-char c))
           :else
             :do (write-char char))))
 
@@ -160,8 +162,9 @@
 
 (defun |#reader| (stream character)
   (let* ((digit
-          (parse-integer (read-string-till (complement #'digit-char-p) stream)
-                         :junk-allowed t))
+          (parse-integer
+            (read-string-till (lambda (c) (not (digit-char-p c))) stream)
+            :junk-allowed t))
          (char (peek-char nil stream))
          (reader (get-dispatcher char)))
     (if reader
@@ -275,7 +278,8 @@
                                   out))
                    ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
                     (let ((digit
-                           (read-string-till (complement #'digit-char-p)))
+                           (read-string-till
+                             (lambda (c) (not (digit-char-p c)))))
                           (c (peek-char nil stream)))
                       (if (char= #\| c) ; nested comment with digit.
                           (write-string
