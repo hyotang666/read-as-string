@@ -223,7 +223,10 @@
   (progn
    (check-type fun (or symbol function))
    (check-type readtable readtable))
-  (setf (gethash (cons (char-upcase char) readtable) *dispatch-macros*) fun)
+  (setf (gethash
+          (cons (char-upcase char) (named-readtables:readtable-name readtable))
+          *dispatch-macros*)
+          fun)
   t)
 
 (declaim
@@ -237,7 +240,7 @@
     #+clisp
     (check-type *readtable* readtable)
     (setf (car cons) (char-upcase char)
-          (cdr cons) *readtable*)
+          (cdr cons) (named-readtables:readtable-name *readtable*))
     (values (gethash cons *dispatch-macros*))))
 
 (let ((*readtable* (named-readtables:find-readtable 'as-string)))
