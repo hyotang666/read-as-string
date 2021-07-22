@@ -158,12 +158,13 @@
   (write-char character)
   (%read-as-string stream t t t))
 
-(defun |;reader| (stream character)
-  (write-char character)
-  (handler-case
-      (do-stream-till (c (char-pred #\Newline) stream t t)
-        (write-char c))
-    (end-of-file ())))
+(let ((pred (char-pred #\Newline)))
+  (defun |;reader| (stream character)
+    (write-char character)
+    (handler-case
+        (do-stream-till (c pred stream t t)
+          (write-char c))
+      (end-of-file ()))))
 
 (defun |#reader| (stream character)
   (let* ((digit
