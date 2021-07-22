@@ -127,12 +127,9 @@
         |,reader|))
 
 (defun |"reader| (stream character)
-  (funcall (formatter "~S") *standard-output*
-           (funcall
-             (load-time-value
-              (coerce (get-macro-character #\" (copy-readtable nil)) 'function)
-              t)
-             stream character)))
+  (write-char character)
+  (do-stream-till (c (char-pred #\") stream t t)
+    (write-char c)))
 
 (defun |'reader| (stream character)
   (write-char character)
