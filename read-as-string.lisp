@@ -238,10 +238,11 @@
   (declare (optimize (speed 1)))
   #+clisp
   (check-type *readtable* readtable)
-  (values (gethash
-            (cons (char-upcase char)
-                  (named-readtables:readtable-name *readtable*))
-            *dispatch-macros*)))
+  (let ((cons
+         (cons (char-upcase char)
+               (named-readtables:readtable-name *readtable*))))
+    (declare (dynamic-extent cons))
+    (values (gethash cons *dispatch-macros*))))
 
 (let ((*readtable* (named-readtables:find-readtable 'as-string)))
   (set-dispatcher #\# '|##reader|)
