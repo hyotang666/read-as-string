@@ -3,16 +3,17 @@
 
 (defsystem :read-as-string
   :version "2.3.9"
-  :author "Shinichi Sato"
+  :author "SATO Shinichi"
   :description "Reading S-Expression string from stream."
   :long-description #.(read-file-string(subpathname *load-pathname*
                                                     "README.md"))
   :license "MIT"
+  :source-control (:git "git@github.com:hyotang666/read-as-string")
+  :bug-tracker "https://github.com/hyotang666/read-as-string/issues"
   :depends-on
   (
    "named-readtables" ; Readtable manager.
    "core-reader"        ; utilities for making stream reader.
-   "uiop"               ; utilities.
    )
   :components((:file "read-as-string")))
 
