@@ -218,7 +218,7 @@
         set-dispatcher))
 
 (defun set-dispatcher (char fun &optional (readtable *readtable*))
-  (declare (optimize (speed 1)))
+  (declare (optimize (speed 1))) ; due to not base-char.
   #+clisp
   (progn
    (check-type fun (or symbol function))
