@@ -78,7 +78,9 @@
          (char (peek-char (null recursive-p) nil t t recursive-p)))
     (when recursive-p
       (do-stream-till (c (lambda (c) (not (whitecharp c))))
-        (write-char c)))
+        (write-char c)
+        (when (char= #\\ c)
+          (write-char (read-char)))))
     (if (get-macro-character
           (if recursive-p
               (peek-char (null recursive-p) nil t t recursive-p)
@@ -111,7 +113,9 @@
             :else :if (char= #\| char)
               :do (write-char char)
                   (do-stream-till (c pred nil t t)
-                    (write-char c))
+                    (write-char c)
+                    (when (char= #\\ c)
+                      (write-char (read-char))))
             :else
               :do (write-char char)))))
 
@@ -131,10 +135,9 @@
   (defun |"reader| (stream character)
     (write-char character)
     (do-stream-till (c pred stream t t)
-      (if (char= #\\ c)
-	(progn (write-char c)
-	       (write-char (read-char stream)))
-	(write-char c)))))
+      (write-char c)
+      (when (char= #\\ c)
+        (write-char (read-char stream))))))
 
 (defun |'reader| (stream character)
   (write-char character)
@@ -335,10 +338,9 @@
            (write number))
          (write-char character)
          (do-stream-till (c pred stream t t)
-           (if (char= #\\ c)
-	     (progn (write-char c)
-		    (write-char (read-char stream)))
-	     (write-char c))))
+           (write-char c)
+           (when (char= #\\ c)
+             (write-char (read-char stream)))))
         (error 'read-unreadable-object :stream stream))))
 
 (defun |#\\reader| (stream character number)
