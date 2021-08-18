@@ -99,25 +99,24 @@
 (let ((pred (char-pred #\|)))
   (defun %read-token (&optional stream)
     (let ((*standard-input* (or stream *standard-input*)))
-      (loop :for char := (read-char nil nil nil nil)
-            :while char
-            :if (or (whitecharp char)
-                    (multiple-value-bind (macro non-terminal-p)
-                        (get-macro-character char)
-                      (and macro (not non-terminal-p))))
-              :do (unread-char char)
-                  (loop-finish)
-            :else :if (char= #\\ char)
-              :do (write-char char)
-                  (write-char (read-char))
-            :else :if (char= #\| char)
-              :do (write-char char)
-                  (do-stream-till (c pred nil t t)
-                    (write-char c)
-                    (when (char= #\\ c)
-                      (write-char (read-char))))
-            :else
-              :do (write-char char)))))
+      (do-stream (char nil nil nil)
+        (cond
+          ((or (whitecharp char)
+               (multiple-value-bind (macro non-terminal-p)
+                   (get-macro-character char)
+                 (and macro (not non-terminal-p))))
+           (unread-char char)
+           (return))
+          ((char= #\\ char)
+           (write-char char)
+           (write-char (read-char)))
+          ((char= #\| char)
+           (write-char char)
+           (do-stream-till (c pred nil t t)
+             (write-char c)
+             (when (char= #\\ c)
+               (write-char (read-char)))))
+          (t (write-char char)))))))
 
 ;;; MACRO CHARS
 
@@ -146,21 +145,19 @@
 (defun |paren-reader| (stream character)
   (let ((*print-pretty*)) ; For CLISP.
     (write-char character)
-    (loop :for char = (read-char stream)
-          ;; end check
-          :if (char= #\) char)
-            :do (write-char char)
-                (loop-finish)
-          ;; dotted list check.
-          :else :if (char= #\. char)
-            :do (write-char char)
-          ;; whitechar check.
-          :else :if (whitecharp char)
-            :do (write-char char)
-          ;; the default.
-          :else
-            :do (unread-char char)
-                (%read-as-string stream t t t))))
+    (do-stream (char stream)
+      (cond ;; end check
+            ((char= #\) char)
+             (write-char char)
+             (return))
+            ;; dotted list check.
+            ((char= #\. char) (write-char char))
+            ;; whitechar check.
+            ((whitecharp char) (write-char char))
+            ;; the default.
+            (t
+             (unread-char char)
+             (%read-as-string stream t t t))))))
 
 (defun |`reader| (stream character)
   (write-char character)
@@ -299,27 +296,25 @@
 
 (defun |#\|reader| (stream character number)
   (funcall (formatter "#~@[~D~]~C") *standard-output* number character)
-  (loop :for char = (read-char stream)
-        :do (case char
-              (#\|
-               (write-char char)
-               (when (char= #\# (peek-char nil stream))
-                 (write-char (read-char stream))
-                 (loop-finish)))
-              (#\#
-               (case (peek-char nil stream)
-                 (#\| ; nested comment
-                  (|#\|reader| stream (read-char stream) nil))
-                 ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
-                  (let ((digit
-                         (read-string-till
-                           (lambda (c) (not (digit-char-p c)))))
-                        (c (peek-char nil stream)))
-                    (if (char= #\| c) ; nested comment with digit.
-                        (|#\|reader| stream (read-char stream) digit)
-                        (progn (write-char char) (write-string digit)))))
-                 (otherwise (write-char char))))
-              (otherwise (write-char char)))))
+  (do-stream (char stream)
+    (case char
+      (#\|
+       (write-char char)
+       (when (char= #\# (peek-char nil stream))
+         (write-char (read-char stream))
+         (return)))
+      (#\#
+       (case (peek-char nil stream)
+         (#\| ; nested comment
+          (|#\|reader| stream (read-char stream) nil))
+         ((#\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)
+          (let ((digit (read-string-till (lambda (c) (not (digit-char-p c)))))
+                (c (peek-char nil stream)))
+            (if (char= #\| c) ; nested comment with digit.
+                (|#\|reader| stream (read-char stream) digit)
+                (progn (write-char char) (write-string digit)))))
+         (otherwise (write-char char))))
+      (otherwise (write-char char)))))
 
 (defun |#+reader| (stream character number)
   (write-char #\#)
