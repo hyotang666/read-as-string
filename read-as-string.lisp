@@ -131,7 +131,10 @@
   (defun |"reader| (stream character)
     (write-char character)
     (do-stream-till (c pred stream t t)
-      (write-char c))))
+      (if (char= #\\ c)
+	(progn (write-char c)
+	       (write-char (read-char stream)))
+	(write-char c)))))
 
 (defun |'reader| (stream character)
   (write-char character)
@@ -331,8 +334,11 @@
          (when number
            (write number))
          (write-char character)
-         (do-stream-till (c pred nil t t)
-           (write-char c)))
+         (do-stream-till (c pred stream t t)
+           (if (char= #\\ c)
+	     (progn (write-char c)
+		    (write-char (read-char stream)))
+	     (write-char c))))
         (error 'read-unreadable-object :stream stream))))
 
 (defun |#\\reader| (stream character number)
