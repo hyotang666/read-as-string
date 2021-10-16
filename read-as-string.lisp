@@ -66,7 +66,7 @@
          (*standard-input* (or stream *standard-input*)))
     (handler-case
         (with-output-to-string (*standard-output*)
-          (%read-as-string stream eof-error-p eof-value recursive-p))
+          (%read-as-string *standard-input* eof-error-p eof-value recursive-p))
       (end-of-file (c)
         (if eof-error-p
             (error c)
@@ -81,10 +81,11 @@
         (write-char c)
         (when (char= #\\ c)
           (write-char (read-char)))))
-    (if (get-macro-character
+    (if (named-readtables::%get-macro-character
           (if recursive-p
               (peek-char (null recursive-p) nil t t recursive-p)
-              char))
+              char)
+          *readtable*)
         (read *standard-input* eof-error-p eof-value recursive-p)
         (%read-token))))
 
@@ -102,9 +103,17 @@
       (do-stream (char nil nil nil)
         (cond
           ((or (whitecharp char)
-               (multiple-value-bind (macro non-terminal-p)
-                   (get-macro-character char)
-                 (and macro (not non-terminal-p))))
+               ;; KLUDGE: for allegro.
+               ;; allegro readtable is designed to every character has its reader-macro.
+               ;; To ignore default behavior, named-readtables::%get-macro-character can be used.
+               ;; But unfortunately, it does not return second value.
+               ;; %get-macro-character is internal one
+               ;; and its behavior satisfies named-readtables's needs enough.
+               ;; We do not have the reason to change its behavior.
+               ;; Fortunately non-terminating-p is used only for |#reader|.
+               ;; And read-as-string does not have to need to extend.
+               (and (named-readtables::%get-macro-character char *readtable*)
+                    (not (char= char #\#))))
            (unread-char char)
            (return))
           ((char= #\\ char)
@@ -222,7 +231,7 @@
 
 (defun set-dispatcher (char fun &optional (readtable *readtable*))
   (declare (optimize (speed 1))) ; due to not base-char.
-  #+clisp
+  #+(or clisp allegro)
   (progn
    (check-type fun (or symbol function))
    (check-type readtable readtable))
