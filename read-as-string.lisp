@@ -231,7 +231,7 @@
 
 (defun set-dispatcher (char fun &optional (readtable *readtable*))
   (declare (optimize (speed 1))) ; due to not base-char.
-  #+(or clisp allegro)
+  #+(or clisp allegro abcl)
   (progn
    (check-type fun (or symbol function))
    (check-type readtable readtable))
