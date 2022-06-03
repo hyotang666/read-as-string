@@ -215,7 +215,8 @@
 ;;;; READTABLE
 
 (locally
- (declare (optimize (speed 1)))
+ #+sbcl ; Out of our responsibilities.
+ (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
  (named-readtables:defreadtable as-string
    (:macro-char #\" '|"reader|)
    (:macro-char #\' '|'reader|)
@@ -234,7 +235,8 @@
         set-dispatcher))
 
 (defun set-dispatcher (char fun &optional (readtable *readtable*))
-  (declare (optimize (speed 1))) ; due to not base-char.
+  #+sbcl ; due to not base-char.
+  (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
   #+(or clisp allegro abcl)
   (progn
    (check-type fun (or symbol function))
@@ -251,7 +253,8 @@
         get-dispatcher))
 
 (defun get-dispatcher (char &optional (*readtable* *readtable*))
-  (declare (optimize (speed 1)))
+  #+sbcl ; due to not base-char.
+  (declare (sb-ext:muffle-conditions sb-ext:compiler-note))
   #+clisp
   (check-type *readtable* readtable)
   (let ((cons
