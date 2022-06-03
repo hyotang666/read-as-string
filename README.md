@@ -44,7 +44,16 @@ Read-as-string does not discard any read time condition.
 "#+() test"
 ```
 
-### Extending the readtable.
+## Readtable.
+
+### Readers.
+For efficiency, in other words, in order to avoid constructing the intermediate string repeatedly,
+each reader is designed as a printer to the standard output.
+Read-as-string the top-level interface captures all output and then builds a string.
+
+If you want to extend a readtable, your reader should have API as (function * null).
+
+### How to extend.
 Read-as-string provides readtable named as-string.
 To extend macro character, you can do it with an ordinary lisp manner
 but to extend dispatch macro character, you need to obey our manner.
