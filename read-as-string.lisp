@@ -6,6 +6,7 @@
            #:read-as-string
            ;; variables.
            #:*muffle-reader-error*
+           #:*default-readtable*
            ;; conditions
            #:no-dispatch-function
            #:read-unreadable-object
@@ -26,6 +27,8 @@
 ;;;; VARIABLES
 
 (defvar *muffle-reader-error* nil)
+
+(defvar *default-readtable* 'as-string)
 
 ;;;; CONDITIONS
 
@@ -62,7 +65,7 @@
 
 (defun read-as-string
        (&optional stream (eof-error-p t) (eof-value nil) (recursive-p nil))
-  (let* ((*readtable* (named-readtables:find-readtable 'as-string))
+  (let* ((*readtable* (named-readtables:find-readtable *default-readtable*))
          (*standard-input* (or stream *standard-input*)))
     (handler-case
         (with-output-to-string (*standard-output*)
@@ -265,7 +268,7 @@
     (declare (dynamic-extent cons))
     (values (gethash cons *dispatch-macros*))))
 
-(let ((*readtable* (named-readtables:find-readtable 'as-string)))
+(let ((*readtable* (named-readtables:find-readtable *default-readtable*)))
   (set-dispatcher #\# '|##reader|)
   (set-dispatcher #\( '|#paren-reader|)
   (set-dispatcher #\= '|#=reader|)
