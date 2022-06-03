@@ -189,19 +189,23 @@
          (reader (get-dispatcher char)))
     (if reader
         (funcall (coerce reader 'function) stream (read-char stream) digit)
-        (if *muffle-reader-error*
-            (progn
-             (write-char character)
-             (when digit
-               (write digit))
-             (write-char (read-char stream))
-             (when (let ((next-char (peek-char nil stream nil nil)))
-                     (and next-char
-                          (not
-                            (or (whitecharp next-char)
-                                (char= #\) next-char)))))
-               (%read-as-string stream t t t)))
-            (error 'no-dispatch-function :name char :stream stream)))))
+        (progn
+         (unless *muffle-reader-error*
+           (cerror
+             (format nil "Anyway, read the notation with assigning true to ~S."
+                     '*muffle-reader-error*)
+             'no-dispatch-function
+             :name char
+             :stream stream)
+           (setq *muffle-reader-error* t))
+         (write-char character)
+         (when digit
+           (write digit))
+         (write-char (read-char stream))
+         (when (let ((next-char (peek-char nil stream nil nil)))
+                 (and next-char
+                      (not (or (whitecharp next-char) (char= #\) next-char)))))
+           (%read-as-string stream t t t))))))
 
 (defun |,reader| (stream character)
   (declare (ignore stream))
@@ -335,17 +339,21 @@
 
 (let ((pred (char-pred #\>)))
   (defun |#<reader| (stream character number)
-    (if *muffle-reader-error*
-        (progn
-         (write-char #\#)
-         (when number
-           (write number))
-         (write-char character)
-         (do-stream-till (c pred stream t t)
-           (write-char c)
-           (when (char= #\\ c)
-             (write-char (read-char stream)))))
-        (error 'read-unreadable-object :stream stream))))
+    (unless *muffle-reader-error*
+      (cerror
+        (format nil "Anyway, read the notation with assigning true to ~S."
+                '*muffle-reader-error*)
+        'read-unreadable-object
+        :stream stream)
+      (setq *muffle-reader-error* t))
+    (write-char #\#)
+    (when number
+      (write number))
+    (write-char character)
+    (do-stream-till (c pred stream t t)
+      (write-char c)
+      (when (char= #\\ c)
+        (write-char (read-char stream))))))
 
 (defun |#\\reader| (stream character number)
   (unread-char character stream)

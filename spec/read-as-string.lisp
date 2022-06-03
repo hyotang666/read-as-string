@@ -247,6 +247,8 @@
 #?(with-input-from-string (*standard-input* "#<unreadable object>") ; unreadable object
     (read-as-string))
 :signals read-unreadable-object
+,:around (let ((*muffle-reader-error*)) (call-body))
+,:with-restarts (continue)
 
 #?(with-input-from-string (*standard-input* "stop,") ; Stop to read when terminate char comes.
     (read-as-string))
@@ -277,6 +279,8 @@
 #?(with-input-from-string (*standard-input* "#Unknown Dispatcher") ; Unknown dispatch macro char
     (read-as-string))
 :signals no-dispatch-function
+,:around (let ((*muffle-reader-error*)) (call-body))
+,:with-restarts (continue)
 
 ; NOTE!
 ; When specify `*MUFFLE-READER-ERROR*` with T,
