@@ -1,4 +1,4 @@
-# READ-AS-STRING 2.2.9
+# READ-AS-STRING 3.0.0
 ## What is this?
 Reading S-Expression string from stream.
 
@@ -44,6 +44,22 @@ Read-as-string does not discard any read time condition.
 "#+() test"
 ```
 
+### Extending the readtable.
+Read-as-string provides readtable named as-string.
+To extend macro character, you can do it with an ordinary lisp manner
+but to extend dispatch macro character, you need to obey our manner.
+Under the hood, we need to use our own # macro character for generating the dispatch macro character notation string.
+In other words, we can not use common lisp default dispatch macro character features.
+In order to extend the dispatch macro character,
+you should use read-as-string:set-dispatcher instead of cl:set-dispatch-macro-character.
+
+```lisp
+(let ((read-as-string:*default-readtable*
+        (named-readtables:copy-named-readtable 'read-as-string:as-string)))
+  (read-as-string:set-dispatcher #\! '|#!reader|)
+  (read-as-string:read-as-string))
+```
+
 ## From developer
 
 ### Product's goal
@@ -52,10 +68,10 @@ Eliminate bugs.
 MIT
 
 ### Tested with
-* SBCL/2.1.7
+* SBCL/2.2.5
 * CCL/1.12.1
 * CLISP/2.49
 * ECL/21.2.1
 * Allegro/10.1
 * CMUCL/21D
-* ABCL/1.8.0
+* ABCL/1.9.0
