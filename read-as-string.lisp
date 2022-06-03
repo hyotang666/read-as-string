@@ -213,6 +213,8 @@
   nil)
 
 ;;;; READTABLE
+;;; NOTE: In order to generate dispatch macro notation string, we need to use our own #-macro-char-reader.
+;;; And we need our own dispatch macro character handling feature. (i.e. set-dispatcher, and get-dispatcher.)
 
 (locally
  #+sbcl ; Out of our responsibilities.
